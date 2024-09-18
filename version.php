@@ -26,5 +26,5 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_questiongenerator';
 $plugin->release = '0.1.0';
-$plugin->version = 2024091701;
+$plugin->version = 2024091703;
 $plugin->requires = 2022041900;

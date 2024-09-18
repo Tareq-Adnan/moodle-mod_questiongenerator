@@ -43,13 +43,14 @@ if ($id) {
 
 require_login($course, true, $cm);
 
-$modulecontext = context_module::instance($cm->id);
+$context = context_module::instance($cm->id);
 
 $PAGE->set_url('/mod/questiongenerator/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($moduleinstance->name));
 $PAGE->set_heading(format_string($course->fullname));
-$PAGE->set_context($modulecontext);
-
+$PAGE->set_context($context);
+$PAGE->requires->js_call_amd('mod_questiongenerator/prompt_handling', 'promptHandling', array('cmid' => $cm->id));
 echo $OUTPUT->header();
-echo $OUTPUT->heading(format_string($moduleinstance->name));
+echo $OUTPUT->render_from_template('mod_questiongenerator/view', $context);
+
 echo $OUTPUT->footer();

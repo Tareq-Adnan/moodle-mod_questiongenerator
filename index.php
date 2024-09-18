@@ -33,11 +33,11 @@ require_course_login($course);
 
 $coursecontext = context_course::instance($course->id);
 
-$event = \mod_questiongenerator\event\course_module_instance_list_viewed::create(array(
-    'context' => $modulecontext
-));
-$event->add_record_snapshot('course', $course);
-$event->trigger();
+// $event = \mod_questiongenerator\event\course_module_instance_list_viewed::create(array(
+//     'context' => $modulecontext
+// ));
+// $event->add_record_snapshot('course', $course);
+// $event->trigger();
 
 $PAGE->set_url('/mod/questiongenerator/index.php', array('id' => $id));
 $PAGE->set_title(format_string($course->fullname));
@@ -52,7 +52,7 @@ echo $OUTPUT->heading($modulenameplural);
 $questiongenerators = get_all_instances_in_course('questiongenerator', $course);
 
 if (empty($questiongenerators)) {
-    notice(get_string('no$questiongeneratorinstances', 'mod_questiongenerator'), new moodle_url('/course/view.php', array('id' => $course->id)));
+    notice(get_string('pluginname', 'mod_questiongenerator'), new moodle_url('/course/view.php', array('id' => $course->id)));
 }
 
 $table = new html_table();

@@ -1,0 +1,163 @@
+{{!
+This file is part of Moodle - http://moodle.org/
+
+Moodle is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Moodle is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Moodle. If not, see
+<http: //www.gnu.org/licenses />.
+}}
+{{!
+@template mod_questiongenerator/view
+
+TODO describe template view
+
+Example context (json):
+{
+}
+}}
+
+
+<style>
+    .bg {
+        width: 100%;
+        height: auto;
+        min-height: 100vh;
+        /* background-image: url(http://i.imgur.com/w16HASj.png); */
+        background-size: 100% 100%;
+        background-position: top center;
+    }
+
+    .content {
+        margin-top: 20%;
+    }
+
+    .centered {
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .InputStyle {
+        border-radius: 25px;
+        border: solid 1px #0f47ad;
+        background: transparent;
+        width: 300px;
+        padding: 10px 20px;
+    }
+
+
+
+    input,
+    input::-webkit-input-placeholder {
+        font-size: 12px;
+        color: #0f47ad;
+    }
+
+    .social-btn {
+        position: absolute;
+        bottom: 20px;
+        left: 47%;
+    }
+
+    i {
+        padding: 5px;
+        color: #0f47ad;
+
+    }
+
+    input,
+    input:focus {
+        border: solid 1px #0f47ad;
+        outline: 0;
+        -webkit-appearance: none;
+        box-shadow: nones;
+        -moz-box-shadow: none;
+        -webkit-box-shadow: none;
+    }
+
+    .secondLine {
+        font-weight: 350;
+        font-size: 15px;
+        margin-bottom: 15%;
+        color: #0f47ad;
+
+    }
+
+    .firstLine {
+        font-size: 30px;
+        color: #0f47ad;
+    }
+
+    @media only screen and (max-width: 600px) {
+        .firstLine {
+            font-size: 20px;
+        }
+    }
+
+    /* HTML: <div class="loader"></div> */
+    .loader {
+        width: 50px;
+        aspect-ratio: 1;
+        display: grid;
+        border: 4px solid #0000;
+        border-radius: 50%;
+        border-right-color: #25b09b;
+        animation: l15 1s infinite linear;
+    }
+
+    .loader::before,
+    .loader::after {
+        content: "";
+        grid-area: 1/1;
+        margin: 2px;
+        border: inherit;
+        border-radius: 50%;
+        animation: l15 2s infinite;
+    }
+
+    .loader::after {
+        margin: 8px;
+        animation-duration: 3s;
+    }
+
+    @keyframes l15 {
+        100% {
+            transform: rotate(1turn)
+        }
+    }
+</style>
+
+
+<!--Div for Background-->
+<div class="bg text-center m-0 p-0 shadow-sm">
+
+    <!--Div for Centered Text & Input-->
+    <form id="prompt-form">
+        <div class="centered">
+
+            <p class="firstLine">QUESTION GENERATOR</p>
+
+            <p class="secondLine">The Simplest Way Question Generation</p>
+
+            <p> <input class="InputStyle" name="prompt" placeholder="Your Prompt" style="font-family:Arial, FontAwesome;height: fit-content;max-width: 100%;"
+                    type="text">
+            </p>
+           
+            
+            <button type="submit" class="InputStyle text-primary py-1 position-relative" style="font-size: 1rem !important;">
+                <span id="qg-spinner" class="spinner-border hidden" style="position: absolute;left: 1%;top:3%;margin-top: 2px;" role="status" aria-hidden="true"></span>  
+                <span class="visually-hidden" style="font-size: 1.2rem;">Submit</span>
+            </button>
+        </div>
+    </form>
+</div>
