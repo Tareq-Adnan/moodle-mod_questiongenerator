@@ -46,7 +46,10 @@ class mod_questiongenerator_external extends external_api {
     }
 
     public static function submit_prompts($prompt) {
-        return $prompt;
+
+        $content = mod_qg_generate($prompt);
+
+        return $content;
     }
 
     public static function submit_prompts_returns() {
