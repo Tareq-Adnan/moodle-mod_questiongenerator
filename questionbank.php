@@ -25,11 +25,17 @@
 require('../../config.php');
 
 require_login();
+$context = context_system::instance();
+$PAGE->set_context($context);
 
 $url = new moodle_url('/mod/questiongenerator/questionbank.php', []);
 $PAGE->set_url($url);
 $PAGE->set_context(context_system::instance());
+$PAGE->requires->css('/mod/questiongenerator/css/style.css');
 
 $PAGE->set_heading($SITE->fullname);
 echo $OUTPUT->header();
+
+echo $OUTPUT->render_from_template('mod_questiongenerator/questiongenerator', $context);
+
 echo $OUTPUT->footer();
