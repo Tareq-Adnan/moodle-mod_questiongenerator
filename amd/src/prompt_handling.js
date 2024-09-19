@@ -24,29 +24,156 @@
 import $ from 'jquery';
 import { call as getContent } from "core/ajax";
 import promptModal from './prompt_modal';
-export const promptHandling = (cmid) => {
+export const promptHandling = async (cmid) => {
 
     var form = $('#prompt-form');
-   
+    var content = $('#mod-qg-body');
+    var spinner = $('#qg-spinner');
+    var save = $('#save-question');
+    var tryagain = $('#try-again');
+    var modal = $('#bsmodal');
+    var questionData = null;
+
     form.on('submit', function (e) {
         e.preventDefault();
         let formdata = new FormData(this);
         let prompt = formdata.get('prompt');
-        // $('#qg-spinner').show();
-        // $(this).find('button[type="submit"]').prop('disabled', true);
-        // const modal = new promptModal();
-        // modal.show();
+        form.trigger('reset');
+        spinner.show();
+        $(this).find('button[type="submit"]').prop('disabled', true);
+        // promptModal.create({});
+
 
         getContent([{
             methodname: 'mod_questiongenerator_submit_prompts',
             args: { prompt: prompt },
         }])[0].done(response => {
-            console.log(response);
+            let questions = JSON.parse(response);
+            // console.log(questions);
+            questionData = response;
+            showQuestions(questions);
+            spinner.hide();
+            $(this).find('button[type="submit"]').prop('disabled', false);
         }).fail(error => {
-            throw new Error( error.message);
+            spinner.hide();
+            throw new Error(error.message);
         });
     });
 
-    
-}
+    save.on('click', function () {
+        $(this).prop('disabled', true); // Disable the button to prevent multiple clicks
+        content.empty(); // Clear the content
+        $(this).attr('id','savecat-question');
+        if (questionData) {
+            getContent([{
+                methodname: 'mod_questiongenerator_get_questions_categories',
+                args: {},
+            }])[0].done(response => {
+                $(this).prop('disabled', false); // Re-enable the button after response
+                
+                // Check if the response has categories
+                if (response && response.length > 0) {
+                    renderCategorySelect(response);
+                } else {
+                    renderCategoryInput(); // If no categories, show input field
+                }
+            }).fail(error => {
+                spinner.hide();
+                console.error('Error:', error.message);
+                $(this).prop('disabled', false); // Re-enable the button in case of error
+            });
+        }
+    });
+
+    $(document).on('click', '.save-btn', function (e) {
+       e.preventDefault();
+       let category = $('#category').val();
+       console.log(val);
+    })
+
+    // Function to render category select dropdown with Bootstrap styling
+    function renderCategorySelect(categories) {
+        let selectHTML = `<div class="form-group">
+                            <label for="category">Select Category:</label>
+                            <select id="category" class="form-control" name="category">`;
+
+        // Populate the select options
+        categories.forEach(category => {
+            selectHTML += `<option value="${category.id}">${category.name}</option>`;
+        });
+
+        selectHTML += `</select>
+                       </div>
+                       <button id="createNewCategoryBtn" type="button" class="btn btn-outline-primary mt-2">Create New Category</button>`;
+
+        content.html(selectHTML); // Render the dropdown into the content variable
+
+        // Add event listener for "Create New Category" button
+        $('#createNewCategoryBtn').on('click', function() {
+            renderCategoryInput(); // Switch to input text field
+        });
+    }
+
+    // Function to render category input text field with Bootstrap styling
+    function renderCategoryInput() {
+        const inputHTML = `<div class="form-group">
+                             <label for="category">New Category:</label>
+                             <input type="text" id="category" class="form-control" name="category" placeholder="Enter new category">
+                           </div>
+                           <button id="backToSelectBtn" type="button" class="btn btn-outline-secondary mt-2">Back to Select</button>`;
+
+        content.html(inputHTML); // Render the input field into the content variable
+
+        // Add event listener for "Back to Select" button
+        $('#backToSelectBtn').on('click', function() {
+            // Call the API again or restore previous categories if needed
+            getContent([{
+                methodname: 'mod_questiongenerator_get_questions_categories',
+                args: {},
+            }])[0].done(response => {
+                renderCategorySelect(response);
+            });
+        });
+    }
+
+    $(document).on('click', '#mod-qg-close', function () {
+        hideModal();
+    });
+
+    tryagain.on('click', function () {
+        hideModal();
+    });
+
+    function showQuestions(questions) {
+        let html = '';
+        questions.forEach(question => {
+            html += ` <div class="quiz-container"><div class="question">
+                        <h6>${question.question}</h6>
+                        </div>
+                          <div class="options">
+                        `;
+            question.options.forEach((option, index) => {
+                html += `<label class="option">
+                       
+                        <span><strong>${index + 1}.</strong>  ${option}</span>
+                    </label>`;
+            });
+
+            html += `</div><div id="result" class="result">
+                    <p>The correct answer is: <span id="correctAnswer">${question.correct_answer}</span></p>
+                    </div>`;
+            html += '</div></div>';
+        });
+
+        content.empty().html(html);
+        modal.modal('show');
+    }
+    function hideModal() {
+        modal.addClass('hide');
+        setTimeout(() => {
+            modal.modal('hide').removeClass('hide');
+        }, 250);
+    }
+
+};
 

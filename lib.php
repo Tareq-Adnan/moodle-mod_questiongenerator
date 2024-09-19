@@ -22,6 +22,53 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+
+ function mod_questiongenerator_extends_navigation(\settings_navigation $settingsnav, \navigation_node $modulenode) {
+    global $CFG, $USER, $DB;
+
+    // Ensure the current course module is available
+    if ($modulenode->key !== 'modulesettings') {
+        return;
+    }
+
+    // Get the course module ID
+    $cmid = optional_param('id', 0, PARAM_INT); // Course module ID
+    if (!$cmid) {
+        return; // Exit if there's no valid course module ID
+    }
+
+    // Get the context of the course module
+    $context = \context_module::instance($cmid);
+
+    // Check if the user has the required capability (e.g., to manage activities)
+    if (!has_capability('mod/questiongenerator:manage', $context)) {
+        return; // Exit if the user doesn't have the required capability
+    }
+
+    // Add a custom navigation node under the module's settings
+    $url = new moodle_url('/mod/questiongenerator/view.php', array('id' => $cmid));
+    $modulenode->add(
+        get_string('customsettings', 'questiongenerator'), // Display name for the link
+        $url, // URL to navigate to
+        navigation_node::TYPE_SETTING, // Type of node
+        null, // Shortname (optional)
+        'mod_questiongenerator_customsettings' // Unique key
+    );
+
+    // Add another custom link, for example to generate questions
+    $url_generate = new moodle_url('/mod/questiongenerator/generate.php', array('id' => $cmid));
+    $modulenode->add(
+        get_string('generatequestions', 'questiongenerator'), // Display name for the link
+        $url_generate, // URL for generating questions
+        navigation_node::TYPE_SETTING, // Type of node
+        null, // Shortname (optional)
+        'mod_questiongenerator_generatequestions' // Unique key
+    );
+}
+
+
+
+
 /**
  * Return if the plugin supports $feature.
  *
@@ -98,7 +145,7 @@ function questiongenerator_delete_instance($id) {
     return true;
 }
 
-function mod_qg_generate($prompt) {
+ function mod_qg_generate($prompt) {
 
     $apiKey = get_config('mod_questiongenerator', 'apiKey');
     $url = get_config('mod_questiongenerator', 'endpoint');
@@ -173,12 +220,6 @@ function mod_qg_generate($prompt) {
         $isCorrectFormat = true;
 
     }
-
-
-        
-    
-
-
 
     // Output the response if it matches the expected format
     if ($isCorrectFormat) {

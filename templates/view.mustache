@@ -135,6 +135,18 @@ Example context (json):
             transform: rotate(1turn)
         }
     }
+
+    .modal-content {
+    transition: transform 0.4s ease, opacity 0.4s ease; /* transition for smooth appearance */
+    transform: translateY(-50px); /* starting position */
+    opacity: 0; /* hidden by default */
+}
+
+.modal.show .modal-content {
+    transform: translateY(0); /* slide down */
+    opacity: 1; /* fully visible */
+}
+
 </style>
 
 
@@ -149,11 +161,8 @@ Example context (json):
 
             <p class="secondLine">The Simplest Way Question Generation</p>
 
-            <p> <input class="InputStyle" name="prompt" placeholder="Your Prompt" style="font-family:Arial, FontAwesome;height: fit-content;max-width: 100%;"
-                    type="text">
-            </p>
-           
-            
+            <p> <input class="InputStyle" name="prompt" placeholder="Your Prompt" type="text" required> </p>
+        
             <button type="submit" class="InputStyle text-primary py-1 position-relative" style="font-size: 1rem !important;">
                 <span id="qg-spinner" class="spinner-border hidden" style="position: absolute;left: 1%;top:3%;margin-top: 2px;" role="status" aria-hidden="true"></span>  
                 <span class="visually-hidden" style="font-size: 1.2rem;">Submit</span>
@@ -161,3 +170,31 @@ Example context (json):
         </div>
     </form>
 </div>
+
+<div id="bsmodal" class="modal fade-scale"  id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header p-0 overflow-hidden">
+            <div class="mod_questiongenerator-analytics-header w-100">
+                <h3>
+              
+                    {{#pix}}monologo, mod_questiongenerator,logo{{/pix}}
+                    
+                    {{#str}}gquestions,mod_questiongenerator{{/str}}
+                </h3>
+                <div class="close-btn" id="mod-qg-close"><span class="rounded text-light shadow-sm">&times;</span>
+                </div>
+            </div>
+        </div>
+        <div id="mod-qg-body" class="modal-body">
+      
+        </div>
+        <div class="modal-footer overflow-hidden">
+          <div class="row w-100 m-0">
+            <button class="btn save-btn col text-center" id="save-question">Save Questions</button>
+            <button class="btn tryagain-btn col text-center" id="try-again">Try Again with new prompt</button>
+          </div>
+          </div>
+      </div>
+    </div>
+  </div>

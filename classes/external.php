@@ -120,7 +120,7 @@ class mod_questiongenerator_external extends external_api {
         global $DB;
 
         // Fetch all categories.
-        $categories = $DB->get_records('question_categories');
+        $categories = $DB->get_records('qg_categories');
 
         $result = [];
         foreach ($categories as $category) {
