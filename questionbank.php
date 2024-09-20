@@ -27,6 +27,20 @@ require('../../config.php');
 require_login();
 $context = context_system::instance();
 $PAGE->set_context($context);
+global $DB;
+
+// Fetch categories from the database
+$categories = $DB->get_records('qg_categories', null, '', 'id, name');
+
+$PAGE->requires->js_call_amd('mod_questiongenerator/questiongenerator', 'init', array($categories));
+$PAGE->requires->js('/mod/questiongenerator/amd/src/questiongenerator.js');
+
+// Pass categories to the template
+$templatecontext = [
+    'categories' => array_values($categories),
+];
+
+// echo $OUTPUT->render_from_template('mod_questiongenerator/questiongenerator', $templatecontext);
 
 $url = new moodle_url('/mod/questiongenerator/questionbank.php', []);
 $PAGE->set_url($url);
@@ -36,6 +50,6 @@ $PAGE->requires->css('/mod/questiongenerator/css/style.css');
 $PAGE->set_heading($SITE->fullname);
 echo $OUTPUT->header();
 
-echo $OUTPUT->render_from_template('mod_questiongenerator/questiongenerator', $context);
+echo $OUTPUT->render_from_template('mod_questiongenerator/questiongenerator', $templatecontext);
 
 echo $OUTPUT->footer();

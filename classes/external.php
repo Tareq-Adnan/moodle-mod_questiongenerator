@@ -189,7 +189,7 @@ class mod_questiongenerator_external extends external_api {
             $record = new stdClass();
             $record->categoryid = $params['categoryid'];
             $record->questiontext = $question['questiontext'];
-            $record->difficulty = $question['difficulty'];
+            $record->difficulty = $question['question_level'];
             $record->timecreated = time();
 
             // $DB->insert_record('questiongenerator_generated_questions', $record);
@@ -230,22 +230,23 @@ class mod_questiongenerator_external extends external_api {
     public static function get_generated_questions($categoryid) {
         global $DB;
 
-        // Validate parameters.
         $params = self::validate_parameters(self::get_generated_questions_parameters(), array('categoryid' => $categoryid));
+        $categoryid = $params['categoryid'];
 
-        // Fetch all questions for the given category.
-        // $questions = $DB->get_records('questiongenerator_generated_questions', array('categoryid' => $params['categoryid']));
+        $questions = $DB->get_records('qg_questions', ['category_id' => $categoryid]);
 
-        $result = [];
-        // foreach ($questions as $question) {
-        //     $result[] = [
-        //         'id' => $question->id,
-        //         'questiontext' => $question->questiontext,
-        //         'difficulty' => $question->difficulty
-        //     ];
-        // }
+        $questiondata = [];
+        foreach ($questions as $question) {
+            $questiondata[] = [
+                'questionid' => $question->id,
+                'question' => $question->question,
+                'options' => $question->options,
+                'answer' => $question->answer,
+                'difficulty' => $question->question_level
+            ];
+        }
 
-        return $result;
+        return $questiondata;
     }
 
     /**
@@ -257,9 +258,11 @@ class mod_questiongenerator_external extends external_api {
         return new external_multiple_structure(
             new external_single_structure(
                 array(
-                    'id' => new external_value(PARAM_INT, 'Question ID'),
-                    'questiontext' => new external_value(PARAM_TEXT, 'The question text'),
-                    'difficulty' => new external_value(PARAM_TEXT, 'The difficulty level')
+                    'questionid' => new external_value(PARAM_INT, 'The question ID'),
+                    'question' => new external_value(PARAM_TEXT, 'The question'),
+                    'options' => new external_value(PARAM_TEXT, 'Options for the question'),
+                    'answer' => new external_value(PARAM_TEXT, 'The correct answer'),
+                    'difficulty' => new external_value(PARAM_TEXT, 'The difficulty level'),
                 )
             )
         );
@@ -272,7 +275,7 @@ class mod_questiongenerator_external extends external_api {
      */
     public static function check_dificulty_level_parameters() {
         return new external_function_parameters(
-            array('prompt' => new external_value(PARAM_TEXT, 'The prompt to determine difficulty'))
+            array('questionid' => new external_value(PARAM_INT, 'The question ID'))
         );
     }
 
@@ -285,8 +288,12 @@ class mod_questiongenerator_external extends external_api {
      */
     public static function check_dificulty_level($prompt) {
         // Validate parameters.
-        $params = self::validate_parameters(self::check_dificulty_level_parameters(), array('prompt' => $prompt));
+        $params = self::validate_parameters(self::check_dificulty_level_parameters(), array('questionid' => $questionid));
+        $questionid = $params['questionid'];
 
+        $question = $DB->get_records('qg_questions', ['id' => $questionid]);
+        var_dump($question);
+        die;
         // Determine difficulty level (example logic).
         $difficulty = (strlen($params['prompt']) < 50) ? 'easy' : 'hard';
 

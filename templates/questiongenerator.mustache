@@ -23,47 +23,30 @@
     {
     }
 }}
-    <div class="container mt-5">
-        <!-- Dropdown -->
-        <div class="mb-3">
-            <label for="categoryDropdown" class="form-label">Category</label>
-            <select id="categoryDropdown" class="form-control">
-                <option selected>Select Category</option>
-                <option value="1">Category 1</option>
-                <option value="2">Category 2</option>
-                <option value="3">Category 3</option>
-            </select>
-        </div>
-
-        <!-- Table -->
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Question</th>
-                    <th>Options</th>
-                    <th>Answer</th>
-                    <th>Difficulty</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>What is the capital of France?</td>
-                    <td>Paris, London, Berlin</td>
-                    <td>Paris</td>
-                    <td><button class="btn btn-primary check-difficulty">Check Difficulty</button></td>
-                </tr>
-                <tr>
-                    <td>Which planet is known as the Red Planet?</td>
-                    <td>Mars, Jupiter, Venus</td>
-                    <td>Mars</td>
-                    <td><button class="btn btn-primary check-difficulty">Check Difficulty</button></td>
-                </tr>
-                <tr>
-                    <td>What is the largest ocean on Earth?</td>
-                    <td>Atlantic, Indian, Pacific</td>
-                    <td>Pacific</td>
-                    <td><button class="btn btn-primary check-difficulty">Check Difficulty</button></td>
-                </tr>
-            </tbody>
-        </table>
+   <div class="container mt-5">
+    <!-- Dropdown -->
+    <div class="mb-3">
+        <label for="categoryDropdown" class="form-label">Category</label>
+        <select id="categoryDropdown" class="form-control">
+            <option value="">Select Category</option>
+            {{#categories}}
+                <option value="{{id}}">{{name}}</option>
+            {{/categories}}
+        </select>
     </div>
+
+    <!-- Table -->
+    <table class="table table-striped" id="questionTable">
+        <thead>
+            <tr>
+                <th>Question</th>
+                <th>Options</th>
+                <th>Answer</th>
+                <th>Difficulty</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Question rows will be inserted dynamically -->
+        </tbody>
+    </table>
+</div>
