@@ -286,18 +286,47 @@ class mod_questiongenerator_external extends external_api {
      * @return array The calculated difficulty level.
      * @throws invalid_parameter_exception If parameters are invalid.
      */
-    public static function check_dificulty_level($prompt) {
+    public static function check_dificulty_level($questionid) {
+        global $DB; // Ensure this is declared at the top of the file
+
         // Validate parameters.
-        $params = self::validate_parameters(self::check_dificulty_level_parameters(), array('questionid' => $questionid));
-        $questionid = $params['questionid'];
+    // Validate parameters.
+    $params = self::validate_parameters(self::check_dificulty_level_parameters(), array('questionid' => $questionid));
+    $questionid = $params['questionid'];
+    // Fetch the question from the database
+    $question = $DB->get_records('qg_questions', ['id' => $questionid]);
 
-        $question = $DB->get_records('qg_questions', ['id' => $questionid]);
-        var_dump($question);
-        die;
-        // Determine difficulty level (example logic).
-        $difficulty = (strlen($params['prompt']) < 50) ? 'easy' : 'hard';
+    // Check if question exists
+    if (!$question) {
+        throw new invalid_parameter_exception('Invalid question ID');
+    }
+    $question_data = $question[$questionid];
+    $prompt = "Question = ".$question_data->question ."Options = ".  $question_data->options ."Answer = ". $question_data->answer;
+    $content = mod_qg_question_difficulty($prompt);
+    // Initialize an empty variable for question level
+    $question_level = '';
+    $content = strtolower($content);
 
-        return ['difficulty' => $difficulty];
+    // Check if content contains 'easy', 'medium', or 'hard'
+    if (strpos($content, 'easy') !== false) {
+        $question_level = 'easy';
+    } elseif (strpos($content, 'medium') !== false) {
+        $question_level = 'medium';
+    } elseif (strpos($content, 'hard') !== false) {
+        $question_level = 'hard';
+    }
+
+    // If question level is determined, update the database
+    if (!empty($question_level)) {
+        $DB->update_record('qg_questions', (object) [
+            'id' => $questionid,
+            'question_level' => $question_level
+        ]);
+    }
+    $question_level = ucwords($question_level);
+
+    return $question_level;
+    
     }
 
     /**
@@ -306,8 +335,7 @@ class mod_questiongenerator_external extends external_api {
      * @return external_single_structure
      */
     public static function check_dificulty_level_returns() {
-        return new external_single_structure(
-            array('difficulty' => new external_value(PARAM_TEXT, 'The difficulty level'))
-        );
+        return new external_value(PARAM_TEXT, 'AI Response ',VALUE_DEFAULT,[]);
+
     }
 }

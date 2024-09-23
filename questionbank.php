@@ -22,34 +22,34 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require('../../config.php');
+ require('../../config.php');
+ require_login();
+ 
+ $context = context_system::instance();
+ $PAGE->set_context($context);
+ 
+ global $DB, $OUTPUT, $PAGE;
+ 
+ // Fetch categories from the database
+ $categories = $DB->get_records('qg_categories', null, '', 'id, name');
+ 
+ // Pass categories to the template
+ $templatecontext = [
+     'categories' => array_values($categories),
+ ];
+ 
+ $url = new moodle_url('/mod/questiongenerator/questionbank.php');
+ $PAGE->set_url($url);
+ $PAGE->set_heading(get_string('questionbank', 'questiongenerator'));
+ $PAGE->set_title(get_string('questionbank', 'questiongenerator'));
+ 
+ // Custom JS and CSS
+ $PAGE->requires->js_call_amd('mod_questiongenerator/questiongenerator', 'init', array($categories));
+ $PAGE->requires->js_call_amd('mod_questiongenerator/questiondifficulty', 'init', array($categories));
 
-require_login();
-$context = context_system::instance();
-$PAGE->set_context($context);
-global $DB;
-
-// Fetch categories from the database
-$categories = $DB->get_records('qg_categories', null, '', 'id, name');
-
-$PAGE->requires->js_call_amd('mod_questiongenerator/questiongenerator', 'init', array($categories));
-$PAGE->requires->js('/mod/questiongenerator/amd/src/questiongenerator.js');
-
-// Pass categories to the template
-$templatecontext = [
-    'categories' => array_values($categories),
-];
-
-// echo $OUTPUT->render_from_template('mod_questiongenerator/questiongenerator', $templatecontext);
-
-$url = new moodle_url('/mod/questiongenerator/questionbank.php', []);
-$PAGE->set_url($url);
-$PAGE->set_context(context_system::instance());
-$PAGE->requires->css('/mod/questiongenerator/css/style.css');
-
-$PAGE->set_heading($SITE->fullname);
-echo $OUTPUT->header();
-
-echo $OUTPUT->render_from_template('mod_questiongenerator/questiongenerator', $templatecontext);
-
-echo $OUTPUT->footer();
+ $PAGE->requires->css('/mod/questiongenerator/css/style.css');
+ 
+ echo $OUTPUT->header();
+ echo $OUTPUT->render_from_template('mod_questiongenerator/questiongenerator', $templatecontext);
+ echo $OUTPUT->footer();
+ 

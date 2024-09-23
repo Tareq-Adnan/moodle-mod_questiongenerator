@@ -44,8 +44,9 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                             difficultyButton = '<button data-question-id="' + question.questionid + '" class="btn btn-primary check-difficulty">Check Difficulty</button>';
                         }
                         else{
-                            difficultyButton = question.difficulty; 
-                        }
+                            difficultyButton = question.difficulty.toLowerCase(); // Ensure all lowercase first
+                            difficultyButton = difficultyButton.charAt(0).toUpperCase() + difficultyButton.slice(1);
+                                                    }
                         var row = '<tr>' +
                                   '<td>' + question.question + '</td>' +
                                   '<td>' + question.options + '</td>' +
@@ -58,6 +59,45 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                     console.log('Error fetching questions:', error);
                 });
             });
+            $(document).on('click', '.check-difficulty', function() {
+                // Get the data-question-id attribute
+                var questionId = $(this).data('question-id');
+                
+                // Find the parent <td> of the clicked button
+                var parentTd = $('button[data-question-id="' + questionId + '"]').closest('td');
+                
+                // Show Bootstrap spinner in the parent <td>
+                var loaderHtml = '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>';
+                parentTd.html(loaderHtml);  // Replace the button with the spinner
+            
+                var request = {
+                    methodname: 'mod_questiongenerator_check_dificulty_level',
+                    args: { questionid: questionId },
+                };
+            
+                console.log('Request:', request);
+            
+                // Make the AJAX call
+                Ajax.call([request])[0].done(function(response) {
+                    console.log('Response:', response);
+                    
+                    // Replace spinner with the difficulty level text
+                    if (response) {
+                        parentTd.html(response); // Replace spinner with the difficulty text
+                    } else {
+                        parentTd.html('Difficulty not found'); // Fallback if no difficulty is returned
+                    }
+                }).fail(function(error) {
+                    console.log('Error fetching difficulty level:', error);
+                    
+                    // If there's an error, replace the spinner with an error message
+                    parentTd.html('Error fetching difficulty level');
+                });
+            
+                console.log('Question ID:', questionId);
+            });
+            
+            
         }
     };
 });

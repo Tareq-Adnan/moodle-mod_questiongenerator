@@ -280,3 +280,65 @@ function questiongenerator_delete_instance($id) {
     curl_close($ch);
 
 }
+function mod_qg_question_difficulty($prompt){
+
+    $apiKey = get_config('mod_questiongenerator', 'apiKey');
+    $url = get_config('mod_questiongenerator', 'endpoint');
+
+    // Initialize cURL
+    $ch = curl_init($url);
+    $large_text = file_get_contents('sample.txt');
+
+    // Set the cURL options
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "Authorization: Bearer $apiKey",
+        "Content-Type: application/json"
+    ]);
+
+    
+    // JSON data to be sent
+    $data = [
+        "messages" => [
+            [
+                "role" => "user",
+                "content" => "Analyze the question and just reponse the difficulty level of the question in easy,medium and hard. just reponse the level only nothing else. \n\n" . $prompt
+            ]
+        ],
+        "max_tokens" => 500,
+        "stream" => false
+    ];
+
+    // Encode data to JSON
+    $jsonData = json_encode($data);
+
+    // Set POST data
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+
+    // Execute the request
+    $response = curl_exec($ch);
+
+    // Check for errors
+    if (curl_errno($ch)) {
+        echo 'Error: ' . curl_error($ch);
+        curl_close($ch);
+        exit;
+    }
+
+    // Decode the API response
+    $response_data = json_decode($response, true);
+
+    // Extract content from response
+    $content = $response_data['choices'][0]['message']['content'] ?? '';
+    curl_close($ch);
+
+    return $content;    
+
+
+    // Close cURL session
+}
+function questiongenerator_extend_settings_navigation(settings_navigation $settings, navigation_node $questiongeneratornode){
+    $reportsnode = $questiongeneratornode->add(    get_string('questionbank', 'questiongenerator'),    new moodle_url('/mod/questiongenerator/questionbank.php', ['id' => $settings->get_page()->cm->id]));
+}
+

@@ -24,29 +24,11 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
     return {
         init: function() {
             $('.check-difficulty').on('click', function() {
-                var categoryid = $(this).val();
-                
-                var request = {
-                    methodname: 'mod_questiongenerator_get_generated_questions',
-                    args: {categoryid: categoryid},
-                };
-
-                Ajax.call([request])[0].done(function(response) {
-                    var tableBody = $('#questionTable tbody');
-                    tableBody.empty();
-
-                    response.forEach(function(question) {
-                        var row = '<tr>' +
-                                  '<td>' + question.question + '</td>' +
-                                  '<td>' + question.options + '</td>' +
-                                  '<td>' + question.answer + '</td>' +
-                                  '<td><button class="btn btn-primary check-difficulty">Check Difficulty</button></td>' +
-                                  '</tr>';
-                        tableBody.append(row);
-                    });
-                }).fail(function(error) {
-                    console.log('Error fetching questions:', error);
-                });
+                // Get the data-question-id attribute
+                var questionId = $(this).data('question-id');
+                console.log('Question ID:', questionId);
+    
+                // You can now use the questionId for further actions (AJAX, etc.)
             });
         }
     };
