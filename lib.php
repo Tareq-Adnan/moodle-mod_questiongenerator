@@ -310,7 +310,13 @@ function mod_qg_question_difficulty($prompt)
  */
 function questiongenerator_extend_settings_navigation(settings_navigation $settings, navigation_node $questiongeneratornode)
 {
-    $reportsnode = $questiongeneratornode->add(get_string('questionbank', 'questiongenerator'),
-     new moodle_url('/mod/questiongenerator/questionbank.php', ['id' => $settings->get_page()->cm->id]));
+    $context = context_module::instance($settings->get_page()->cm->id);
+    if(has_capability('mod/questiongenerator:attemptquiz', $context) && !is_siteadmin()) {
+        $questiongeneratornode->add(get_string('qggrade', 'questiongenerator'),
+        new moodle_url('/mod/questiongenerator/grade.php', ['id' => $settings->get_page()->cm->id]));
+    } else {
+        $questiongeneratornode->add(get_string('questionbank', 'questiongenerator'),
+        new moodle_url('/mod/questiongenerator/questionbank.php', ['id' => $settings->get_page()->cm->id]));
+    }
 }
 

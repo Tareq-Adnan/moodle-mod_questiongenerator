@@ -77,7 +77,7 @@ class mod_questiongenerator_external extends external_api {
      * @throws invalid_parameter_exception If parameters are invalid.
      */
     public static function create_question_category($cmid,$categoryname) {
-        global $DB;
+        global $DB, $USER;
 
         // Validate parameters.
         $params = self::validate_parameters(self::create_question_category_parameters(), array('cmid' => $cmid,'categoryname' => $categoryname));
@@ -85,7 +85,7 @@ class mod_questiongenerator_external extends external_api {
         $record = new stdClass();
         $record->name = $params['categoryname'];
         $record->cmid = $params['cmid'];
-
+        $record->userid = $USER->id;
         $record->timecreated = time();
         $record->timemodified = time();
 
