@@ -22,6 +22,53 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+
+ function mod_questiongenerator_extends_navigation(\settings_navigation $settingsnav, \navigation_node $modulenode) {
+    global $CFG, $USER, $DB;
+
+    // Ensure the current course module is available
+    if ($modulenode->key !== 'modulesettings') {
+        return;
+    }
+
+    // Get the course module ID
+    $cmid = optional_param('id', 0, PARAM_INT); // Course module ID
+    if (!$cmid) {
+        return; // Exit if there's no valid course module ID
+    }
+
+    // Get the context of the course module
+    $context = \context_module::instance($cmid);
+
+    // Check if the user has the required capability (e.g., to manage activities)
+    if (!has_capability('mod/questiongenerator:manage', $context)) {
+        return; // Exit if the user doesn't have the required capability
+    }
+
+    // Add a custom navigation node under the module's settings
+    $url = new moodle_url('/mod/questiongenerator/view.php', array('id' => $cmid));
+    $modulenode->add(
+        get_string('customsettings', 'questiongenerator'), // Display name for the link
+        $url, // URL to navigate to
+        navigation_node::TYPE_SETTING, // Type of node
+        null, // Shortname (optional)
+        'mod_questiongenerator_customsettings' // Unique key
+    );
+
+    // Add another custom link, for example to generate questions
+    $url_generate = new moodle_url('/mod/questiongenerator/generate.php', array('id' => $cmid));
+    $modulenode->add(
+        get_string('generatequestions', 'questiongenerator'), // Display name for the link
+        $url_generate, // URL for generating questions
+        navigation_node::TYPE_SETTING, // Type of node
+        null, // Shortname (optional)
+        'mod_questiongenerator_generatequestions' // Unique key
+    );
+}
+
+
+
+
 /**
  * Return if the plugin supports $feature.
  *
@@ -98,7 +145,7 @@ function questiongenerator_delete_instance($id) {
     return true;
 }
 
-function mod_qg_generate($prompt) {
+ function mod_qg_generate($prompt) {
 
     $apiKey = get_config('mod_questiongenerator', 'apiKey');
     $url = get_config('mod_questiongenerator', 'endpoint');
@@ -174,12 +221,6 @@ function mod_qg_generate($prompt) {
 
     }
 
-
-        
-    
-
-
-
     // Output the response if it matches the expected format
     if ($isCorrectFormat) {
         return $content;    
@@ -239,3 +280,65 @@ function mod_qg_generate($prompt) {
     curl_close($ch);
 
 }
+function mod_qg_question_difficulty($prompt){
+
+    $apiKey = get_config('mod_questiongenerator', 'apiKey');
+    $url = get_config('mod_questiongenerator', 'endpoint');
+
+    // Initialize cURL
+    $ch = curl_init($url);
+    $large_text = file_get_contents('sample.txt');
+
+    // Set the cURL options
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "Authorization: Bearer $apiKey",
+        "Content-Type: application/json"
+    ]);
+
+    
+    // JSON data to be sent
+    $data = [
+        "messages" => [
+            [
+                "role" => "user",
+                "content" => "Analyze the question and just reponse the difficulty level of the question in easy,medium and hard. just reponse the level only nothing else. \n\n" . $prompt
+            ]
+        ],
+        "max_tokens" => 500,
+        "stream" => false
+    ];
+
+    // Encode data to JSON
+    $jsonData = json_encode($data);
+
+    // Set POST data
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+
+    // Execute the request
+    $response = curl_exec($ch);
+
+    // Check for errors
+    if (curl_errno($ch)) {
+        echo 'Error: ' . curl_error($ch);
+        curl_close($ch);
+        exit;
+    }
+
+    // Decode the API response
+    $response_data = json_decode($response, true);
+
+    // Extract content from response
+    $content = $response_data['choices'][0]['message']['content'] ?? '';
+    curl_close($ch);
+
+    return $content;    
+
+
+    // Close cURL session
+}
+function questiongenerator_extend_settings_navigation(settings_navigation $settings, navigation_node $questiongeneratornode){
+    $reportsnode = $questiongeneratornode->add(    get_string('questionbank', 'questiongenerator'),    new moodle_url('/mod/questiongenerator/questionbank.php', ['id' => $settings->get_page()->cm->id]));
+}
+

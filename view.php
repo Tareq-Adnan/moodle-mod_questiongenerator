@@ -50,7 +50,10 @@ $PAGE->set_title(format_string($moduleinstance->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 $PAGE->requires->js_call_amd('mod_questiongenerator/prompt_handling', 'promptHandling', array('cmid' => $cm->id));
+$PAGE->requires->css('/mod/questiongenerator/css/style.css');
+
 echo $OUTPUT->header();
+
 echo $OUTPUT->render_from_template('mod_questiongenerator/view', $context);
 
 echo $OUTPUT->footer();

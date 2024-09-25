@@ -30,7 +30,7 @@ export default class promptModal extends Modal {
     configure(modalConfig) {
         // Show this modal on instantiation.
         modalConfig.show = true;
-
+        
         // Remove from the DOM on close.
         modalConfig.removeOnClose = true;
         modalConfig.backdrop = true;
@@ -44,7 +44,7 @@ export default class promptModal extends Modal {
         super.show();
 
         const root = this.getRoot();
-
+        root.addClass('fade');
 
         // Hide the default modal header.
         root.find('.modal-header').hide();

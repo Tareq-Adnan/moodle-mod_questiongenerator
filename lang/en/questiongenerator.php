@@ -33,3 +33,6 @@ $string['pluginadministration'] = 'Questions Generator Administration';
 $string['questiongenerator:addinstance'] = 'Add a new Questions Generator';
 $string['questiongenerator:myaddinstance'] = 'Add a new Questions Generator to the My Moodle page';
 $string['questiongenerator:view'] = "View Question Generator Activity";
+$string['gquestions'] = "Generated Questions";
+$string['aiquestionbank'] = "AI Question Bank";
+$string['questionbank'] = 'Question Bank';
