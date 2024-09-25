@@ -66,7 +66,6 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="fk_categories" TYPE="foreign" FIELDS="category_id" REFTABLE="qg_categories" REFFIELDS="id"/>
         <KEY NAME="fk_cmid" TYPE="foreign" FIELDS="cmid" REFTABLE="course_modules" REFFIELDS="id"/>
         <KEY NAME="fk_userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
