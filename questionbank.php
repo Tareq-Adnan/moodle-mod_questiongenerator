@@ -25,10 +25,10 @@
  require('../../config.php');
  require_login();
  
- $context = context_system::instance();
- $PAGE->set_context($context);
- 
+ $cmid = optional_param('id', 0, PARAM_INT);
  global $DB, $OUTPUT, $PAGE;
+
+
  
  // Fetch categories from the database
  $categories = $DB->get_records('qg_categories', null, '', 'id, name');
@@ -40,12 +40,18 @@
  
  $url = new moodle_url('/mod/questiongenerator/questionbank.php');
  $PAGE->set_url($url);
+ $context = context_module::instance($cmid);
+ $cm = get_coursemodule_from_id('questiongenerator', $cmid, 0, false, MUST_EXIST);
+ $PAGE->set_cm($cm);
+ $PAGE->set_context($context);
  $PAGE->set_heading(get_string('questionbank', 'questiongenerator'));
  $PAGE->set_title(get_string('questionbank', 'questiongenerator'));
- 
+
+
  // Custom JS and CSS
- $PAGE->requires->js_call_amd('mod_questiongenerator/questiongenerator', 'init', array($categories));
- $PAGE->requires->js_call_amd('mod_questiongenerator/questiondifficulty', 'init', array($categories));
+ $PAGE->requires->js_call_amd('mod_questiongenerator/questiongenerator', 'init', array(
+    'cmid'=>$cmid));
+
 
  $PAGE->requires->css('/mod/questiongenerator/css/style.css');
  

@@ -30,10 +30,11 @@ export const promptHandling = async (cmid) => {
     var content = $('#mod-qg-body');
     var spinner = $('#qg-spinner');
     var save = $('#save-question');
+    var nextStep = $('#next-step');
     var tryagain = $('#try-again');
     var modal = $('#bsmodal');
     var questionData = null;
-
+    var saveCategory = $('#save-category');
     form.on('submit', function (e) {
         e.preventDefault();
         let formdata = new FormData(this);
@@ -60,11 +61,13 @@ export const promptHandling = async (cmid) => {
         });
     });
 
-    save.on('click', function () {
+    $(document).on('click', '#next-step', function () {
         $(this).prop('disabled', true); // Disable the button to prevent multiple clicks
         content.empty(); // Clear the content
-        $(this).attr('id','savecat-question');
+        // $(this).attr('id','savecat-question');
         if (questionData) {
+            console.log(questionData);
+
             getContent([{
                 methodname: 'mod_questiongenerator_get_questions_categories',
                 args: {},
@@ -84,12 +87,89 @@ export const promptHandling = async (cmid) => {
             });
         }
     });
+    $(document).on('click', '#save-category', function () {
+        $(this).prop('disabled', true); // Disable the button to prevent multiple clicks
+        // $(this).attr('id','savecat-question');
+        let categoryValue = $('#category').val();
+        content.empty(); // Clear the content
 
-    $(document).on('click', '.save-btn', function (e) {
-       e.preventDefault();
-       let category = $('#category').val();
-       console.log(val);
-    })
+        console.log(categoryValue);
+        if (questionData) {
+            getContent([{
+                methodname: 'mod_questiongenerator_create_question_category',
+                args: {
+                    'cmid':cmid,
+                    'categoryname':categoryValue
+                },
+            }])[0].done(response => {
+                $(this).prop('disabled', false); // Re-enable the button after response
+                console.log(response);
+                console.log(questionData);
+
+                if (response.status) {
+                    getContent([{
+                        methodname: 'mod_questiongenerator_get_questions_categories',
+                        args: {},
+                    }])[0].done(response => {
+                        $(this).prop('disabled', false); // Re-enable the button after response
+                        
+                        // Check if the response has categories
+                        if (response && response.length > 0) {
+                            renderCategorySelect(response);
+                        } else {
+                            renderCategoryInput(); // If no categories, show input field
+                        }
+                    }).fail(error => {
+                        spinner.hide();
+                        console.error('Error:', error.message);
+                        $(this).prop('disabled', false); // Re-enable the button in case of error
+                    });
+                } else {
+                    renderCategoryInput(); // If no categories, show input field
+                }
+                // Check if the response has categories
+                
+            }).fail(error => {
+                spinner.hide();
+                console.error('Error:', error.message);
+                $(this).prop('disabled', false); // Re-enable the button in case of error
+            });
+        }
+    });
+    $(document).on('click', '#save-question', function () {
+        $(this).prop('disabled', true); // Disable the button to prevent multiple clicks
+        // $(this).attr('id','savecat-question');
+        let categoryValue = $('#category').val();
+        console.log(categoryValue);
+        content.empty(); // Clear the content
+
+        if (questionData) {
+            var questionDataJson = JSON.parse(questionData);
+            getContent([{
+                methodname: 'mod_questiongenerator_save_generated_questions',
+                args: {
+                    'cmid':cmid,
+                    'categoryid':categoryValue,
+                    'questionData':questionDataJson
+                },
+            }])[0].done(response => {
+                $(this).prop('disabled', false); // Re-enable the button after response
+                console.log(response);
+                content.html(response);
+                
+            }).fail(error => {
+                spinner.hide();
+                console.error('Error:', error.message);
+                $(this).prop('disabled', false); // Re-enable the button in case of error
+            });
+        }
+    });
+    // $(document).on('click', '.save-btn', function (e) {
+    //    e.preventDefault();
+    //    let category = $('#category').val();
+    //    console.log(val);
+    // })
+
 
     // Function to render category select dropdown with Bootstrap styling
     function renderCategorySelect(categories) {
@@ -107,7 +187,10 @@ export const promptHandling = async (cmid) => {
                        <button id="createNewCategoryBtn" type="button" class="btn btn-outline-primary mt-2">Create New Category</button>`;
 
         content.html(selectHTML); // Render the dropdown into the content variable
-
+        $('#next-step').text('Save Questions');
+        $('#next-step').attr('id', 'save-question');
+        $('#save-category').text('Save Questions');
+        $('#save-category').attr('id', 'save-question');
         // Add event listener for "Create New Category" button
         $('#createNewCategoryBtn').on('click', function() {
             renderCategoryInput(); // Switch to input text field
@@ -123,6 +206,9 @@ export const promptHandling = async (cmid) => {
                            <button id="backToSelectBtn" type="button" class="btn btn-outline-secondary mt-2">Back to Select</button>`;
 
         content.html(inputHTML); // Render the input field into the content variable
+        $('#save-question').text('Create Category');
+        $('#save-question').attr('id', 'save-category');
+
 
         // Add event listener for "Back to Select" button
         $('#backToSelectBtn').on('click', function() {

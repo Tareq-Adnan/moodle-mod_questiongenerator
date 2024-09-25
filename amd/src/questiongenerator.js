@@ -22,13 +22,18 @@
  */
 define(['jquery', 'core/ajax'], function($, Ajax) {
     return {
-        init: function() {
+        init: function(cmid) {
+            console.log(cmid);
             $('#categoryDropdown').on('change', function() {
                 var categoryid = $(this).val();
                 
                 var request = {
                     methodname: 'mod_questiongenerator_get_generated_questions',
-                    args: {categoryid: categoryid},
+                    args: {
+                        categoryid: categoryid,
+                        cmid: cmid,
+
+                    },
                 };
 
                 Ajax.call([request])[0].done(function(response) {
