@@ -22,60 +22,14 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
- function mod_questiongenerator_extends_navigation(\settings_navigation $settingsnav, \navigation_node $modulenode) {
-    global $CFG, $USER, $DB;
-
-    // Ensure the current course module is available
-    if ($modulenode->key !== 'modulesettings') {
-        return;
-    }
-
-    // Get the course module ID
-    $cmid = optional_param('id', 0, PARAM_INT); // Course module ID
-    if (!$cmid) {
-        return; // Exit if there's no valid course module ID
-    }
-
-    // Get the context of the course module
-    $context = \context_module::instance($cmid);
-
-    // Check if the user has the required capability (e.g., to manage activities)
-    if (!has_capability('mod/questiongenerator:manage', $context)) {
-        return; // Exit if the user doesn't have the required capability
-    }
-
-    // Add a custom navigation node under the module's settings
-    $url = new moodle_url('/mod/questiongenerator/view.php', array('id' => $cmid));
-    $modulenode->add(
-        get_string('customsettings', 'questiongenerator'), // Display name for the link
-        $url, // URL to navigate to
-        navigation_node::TYPE_SETTING, // Type of node
-        null, // Shortname (optional)
-        'mod_questiongenerator_customsettings' // Unique key
-    );
-
-    // Add another custom link, for example to generate questions
-    $url_generate = new moodle_url('/mod/questiongenerator/generate.php', array('id' => $cmid));
-    $modulenode->add(
-        get_string('generatequestions', 'questiongenerator'), // Display name for the link
-        $url_generate, // URL for generating questions
-        navigation_node::TYPE_SETTING, // Type of node
-        null, // Shortname (optional)
-        'mod_questiongenerator_generatequestions' // Unique key
-    );
-}
-
-
-
-
 /**
  * Return if the plugin supports $feature.
  *
  * @param string $feature Constant representing the feature.
  * @return true | null True if the feature is supported, null otherwise.
  */
-function questiongenerator_supports($feature) {
+function questiongenerator_supports($feature)
+{
     switch ($feature) {
         case FEATURE_MOD_INTRO:
             return true;
@@ -97,7 +51,8 @@ function questiongenerator_supports($feature) {
  * @param mod_questiongenerator_mod_form $mform The form.
  * @return int The id of the newly inserted record.
  */
-function questiongenerator_add_instance($moduleinstance, $mform = null) {
+function questiongenerator_add_instance($moduleinstance, $mform = null)
+{
     global $DB;
 
     $moduleinstance->timecreated = time();
@@ -117,7 +72,8 @@ function questiongenerator_add_instance($moduleinstance, $mform = null) {
  * @param mod_questiongenerator_mod_form $mform The form.
  * @return bool True if successful, false otherwise.
  */
-function questiongenerator_update_instance($moduleinstance, $mform = null) {
+function questiongenerator_update_instance($moduleinstance, $mform = null)
+{
     global $DB;
 
     $moduleinstance->timemodified = time();
@@ -132,7 +88,8 @@ function questiongenerator_update_instance($moduleinstance, $mform = null) {
  * @param int $id Id of the module instance.
  * @return bool True if successful, false on failure.
  */
-function questiongenerator_delete_instance($id) {
+function questiongenerator_delete_instance($id)
+{
     global $DB;
 
     $exists = $DB->get_record('questiongenerator', array('id' => $id));
@@ -145,7 +102,8 @@ function questiongenerator_delete_instance($id) {
     return true;
 }
 
- function mod_qg_generate($prompt) {
+function mod_qg_generate($prompt)
+{
 
     $apiKey = get_config('mod_questiongenerator', 'apiKey');
     $url = get_config('mod_questiongenerator', 'endpoint');
@@ -212,36 +170,38 @@ function questiongenerator_delete_instance($id) {
 
     // Check if content is valid JSON
     $isCorrectFormat = false;
-        if (!empty($contentArray) &&
-            isset($contentArray[0]['question']) && 
-        isset($contentArray[0]['options']) && 
-        isset($contentArray[0]['correct_answer'])) {
-        
+    if (
+        !empty($contentArray) &&
+        isset($contentArray[0]['question']) &&
+        isset($contentArray[0]['options']) &&
+        isset($contentArray[0]['correct_answer'])
+    ) {
+
         $isCorrectFormat = true;
 
     }
 
     // Output the response if it matches the expected format
     if ($isCorrectFormat) {
-        return $content;    
-       
+        return $content;
+
     } else {
-      
+
         // Prepare correction prompt
         $correction_prompt = 'The response format is incorrect. Please adjust the response to match the following expected format: ' .
-                            json_encode([
-                                [
-                                    "question" => "Example question?",
-                                    "options" => [
-                                        "Option 1",
-                                        "Option 2",
-                                        "Option 3",
-                                        "Option 4"
-                                    ],
-                                    "correct_answer" => "Option 1"
-                                ]
-                            ], JSON_PRETTY_PRINT) .
-                            ' Here is the actual response received: ' . htmlspecialchars($content);
+            json_encode([
+                [
+                    "question" => "Example question?",
+                    "options" => [
+                        "Option 1",
+                        "Option 2",
+                        "Option 3",
+                        "Option 4"
+                    ],
+                    "correct_answer" => "Option 1"
+                ]
+            ], JSON_PRETTY_PRINT) .
+            ' Here is the actual response received: ' . htmlspecialchars($content);
 
         // Create a new request to guide the API with the corrected format
         $correction_data = [
@@ -271,8 +231,8 @@ function questiongenerator_delete_instance($id) {
             $correction_response_data = json_decode($correction_response, true);
             $correction_content = $correction_response_data['choices'][0]['message']['content'] ?? '';
             $correction_content_array = json_decode($correction_content, true);
-            return $correction_content;    
-         
+            return $correction_content;
+
         }
     }
 
@@ -280,7 +240,8 @@ function questiongenerator_delete_instance($id) {
     curl_close($ch);
 
 }
-function mod_qg_question_difficulty($prompt){
+function mod_qg_question_difficulty($prompt)
+{
 
     $apiKey = get_config('mod_questiongenerator', 'apiKey');
     $url = get_config('mod_questiongenerator', 'endpoint');
@@ -296,7 +257,7 @@ function mod_qg_question_difficulty($prompt){
         "Content-Type: application/json"
     ]);
 
-    
+
     // JSON data to be sent
     $data = [
         "messages" => [
@@ -333,12 +294,23 @@ function mod_qg_question_difficulty($prompt){
     $content = $response_data['choices'][0]['message']['content'] ?? '';
     curl_close($ch);
 
-    return $content;    
+    return $content;
 
 
     // Close cURL session
 }
-function questiongenerator_extend_settings_navigation(settings_navigation $settings, navigation_node $questiongeneratornode){
-    $reportsnode = $questiongeneratornode->add(    get_string('questionbank', 'questiongenerator'),    new moodle_url('/mod/questiongenerator/questionbank.php', ['id' => $settings->get_page()->cm->id]));
+
+/**
+ * Method questiongenerator_extend_settings_navigation
+ *
+ * @param settings_navigation $settings [explicite description]
+ * @param navigation_node $questiongeneratornode [explicite description]
+ *
+ * @return void
+ */
+function questiongenerator_extend_settings_navigation(settings_navigation $settings, navigation_node $questiongeneratornode)
+{
+    $reportsnode = $questiongeneratornode->add(get_string('questionbank', 'questiongenerator'),
+     new moodle_url('/mod/questiongenerator/questionbank.php', ['id' => $settings->get_page()->cm->id]));
 }
 

@@ -359,4 +359,249 @@ class mod_questiongenerator_external extends external_api {
         return new external_value(PARAM_TEXT, 'AI Response ',VALUE_DEFAULT,[]);
 
     }
+
+     /**
+     * Describes the parameters for create_quiz web service.
+     *
+     * @return external_function_parameters
+     */
+    public static function create_quiz_parameters() {
+        return new external_function_parameters([
+            'quiz_data' => new external_value(PARAM_RAW, 'Quiz data in JSON format')
+        ]);
+    }
+
+    /**
+     * Creates a quiz based on provided data.
+     *
+     * @param string $quiz_data The data for the quiz in JSON format.
+     * @return array The status of the quiz creation.
+     * @throws invalid_parameter_exception
+     */
+    public static function create_quiz($quiz_data) {
+        // Validate parameters.
+        self::validate_parameters(self::create_quiz_parameters(), ['quiz_data' => $quiz_data]);
+
+        // Logic to create the quiz, using your custom function.
+        $quizid = mod_questiongenerator_create_quiz($quiz_data);
+
+        // Return the creation status.
+        return ['status' => ($quizid) ? true : false];
+    }
+
+    /**
+     * Describes the create_quiz return value.
+     *
+     * @return external_single_structure
+     */
+    public static function create_quiz_returns() {
+        return new external_single_structure([
+            'status' => new external_value(PARAM_BOOL, 'Status of quiz creation'),
+        ]);
+    }
+
+    /**
+     * Describes the parameters for get_quiz web service.
+     *
+     * @return external_function_parameters
+     */
+    public static function get_quiz_parameters() {
+        return new external_function_parameters([]);
+    }
+
+    /**
+     * Retrieves the list of quizzes.
+     *
+     * @return array The list of quizzes.
+     * @throws invalid_parameter_exception
+     */
+    public static function get_quiz() {
+        // Your custom logic to fetch the quiz data.
+        $quizzes = mod_questiongenerator_get_quizzes();
+
+        // Return the quiz data.
+        return $quizzes;
+    }
+
+    /**
+     * Describes the get_quiz return value.
+     *
+     * @return external_multiple_structure
+     */
+    public static function get_quiz_returns() {
+        return new external_multiple_structure(
+            new external_single_structure([
+                'id'   => new external_value(PARAM_INT, 'Quiz ID'),
+                'name' => new external_value(PARAM_TEXT, 'Quiz Name'),
+            ])
+        );
+    }
+
+    /**
+     * Describes the parameters for start_quiz web service.
+     *
+     * @return external_function_parameters
+     */
+    public static function start_quiz_parameters() {
+        return new external_function_parameters([
+            'quizid' => new external_value(PARAM_INT, 'ID of the quiz to start')
+        ]);
+    }
+
+    /**
+     * Starts a quiz based on the provided quiz ID.
+     *
+     * @param int $quizid The ID of the quiz.
+     * @return array The status of starting the quiz.
+     * @throws invalid_parameter_exception
+     */
+    public static function start_quiz($quizid) {
+        // Validate parameters.
+        self::validate_parameters(self::start_quiz_parameters(), ['quizid' => $quizid]);
+
+        // Custom logic to start the quiz.
+        $status = mod_questiongenerator_start_quiz($quizid);
+
+        // Return the start status.
+        return ['status' => $status];
+    }
+
+    /**
+     * Describes the start_quiz return value.
+     *
+     * @return external_single_structure
+     */
+    public static function start_quiz_returns() {
+        return new external_single_structure([
+            'status' => new external_value(PARAM_BOOL, 'Status of quiz start'),
+        ]);
+    }
+
+    /**
+     * Describes the parameters for attempt_quiz web service.
+     *
+     * @return external_function_parameters
+     */
+    public static function attempt_quiz_parameters() {
+        return new external_function_parameters([
+            'quizid' => new external_value(PARAM_INT, 'ID of the quiz'),
+            'attempt_data' => new external_value(PARAM_RAW, 'Attempt data in JSON format'),
+        ]);
+    }
+
+    /**
+     * Attempts a quiz based on the provided quiz ID and attempt data.
+     *
+     * @param int $quizid The ID of the quiz.
+     * @param string $attempt_data The attempt data in JSON format.
+     * @return array The status of quiz attempt.
+     * @throws invalid_parameter_exception
+     */
+    public static function attempt_quiz($quizid, $attempt_data) {
+        // Validate parameters.
+        self::validate_parameters(self::attempt_quiz_parameters(), [
+            'quizid' => $quizid,
+            'attempt_data' => $attempt_data
+        ]);
+
+        // Custom logic to attempt the quiz.
+        $status = mod_questiongenerator_attempt_quiz($quizid, $attempt_data);
+
+        // Return the attempt status.
+        return ['status' => $status];
+    }
+
+    /**
+     * Describes the attempt_quiz return value.
+     *
+     * @return external_single_structure
+     */
+    public static function attempt_quiz_returns() {
+        return new external_single_structure([
+            'status' => new external_value(PARAM_BOOL, 'Status of quiz attempt'),
+        ]);
+    }
+
+    /**
+     * Describes the parameters for end_quiz web service.
+     *
+     * @return external_function_parameters
+     */
+    public static function end_quiz_parameters() {
+        return new external_function_parameters([
+            'quizid' => new external_value(PARAM_INT, 'ID of the quiz to end')
+        ]);
+    }
+
+    /**
+     * Ends and submits the quiz based on the provided quiz ID.
+     *
+     * @param int $quizid The ID of the quiz.
+     * @return array The status of quiz submission.
+     * @throws invalid_parameter_exception
+     */
+    public static function end_quiz($quizid) {
+        // Validate parameters.
+        self::validate_parameters(self::end_quiz_parameters(), ['quizid' => $quizid]);
+
+        // Custom logic to end the quiz.
+        $status = mod_questiongenerator_end_quiz($quizid);
+
+        // Return the end status.
+        return ['status' => $status];
+    }
+
+    /**
+     * Describes the end_quiz return value.
+     *
+     * @return external_single_structure
+     */
+    public static function end_quiz_returns() {
+        return new external_single_structure([
+            'status' => new external_value(PARAM_BOOL, 'Status of quiz submission'),
+        ]);
+    }
+
+    /**
+     * Describes the parameters for get_grades web service.
+     *
+     * @return external_function_parameters
+     */
+    public static function get_grades_parameters() {
+        return new external_function_parameters([
+            'quizid' => new external_value(PARAM_INT, 'ID of the quiz')
+        ]);
+    }
+
+    /**
+     * Retrieves the grades for the specified quiz.
+     *
+     * @param int $quizid The ID of the quiz.
+     * @return array List of grades for the quiz.
+     * @throws invalid_parameter_exception
+     */
+    public static function get_grades($quizid) {
+        // Validate parameters.
+        self::validate_parameters(self::get_grades_parameters(), ['quizid' => $quizid]);
+
+        // Custom logic to get quiz grades.
+        $grades = mod_questiongenerator_get_quiz_grades($quizid);
+
+        // Return the grades.
+        return $grades;
+    }
+
+    /**
+     * Describes the get_grades return value.
+     *
+     * @return external_multiple_structure
+     */
+    public static function get_grades_returns() {
+        return new external_multiple_structure(
+            new external_single_structure([
+                'userid' => new external_value(PARAM_INT, 'User ID'),
+                'grade'  => new external_value(PARAM_FLOAT, 'User grade'),
+            ])
+        );
+    }
 }
