@@ -73,7 +73,7 @@ export const promptHandling = async (cmid) => {
                 args: {},
             }])[0].done(response => {
                 $(this).prop('disabled', false); // Re-enable the button after response
-                
+
                 // Check if the response has categories
                 if (response && response.length > 0) {
                     renderCategorySelect(response);
@@ -98,8 +98,8 @@ export const promptHandling = async (cmid) => {
             getContent([{
                 methodname: 'mod_questiongenerator_create_question_category',
                 args: {
-                    'cmid':cmid,
-                    'categoryname':categoryValue
+                    'cmid': cmid,
+                    'categoryname': categoryValue
                 },
             }])[0].done(response => {
                 $(this).prop('disabled', false); // Re-enable the button after response
@@ -112,7 +112,7 @@ export const promptHandling = async (cmid) => {
                         args: {},
                     }])[0].done(response => {
                         $(this).prop('disabled', false); // Re-enable the button after response
-                        
+
                         // Check if the response has categories
                         if (response && response.length > 0) {
                             renderCategorySelect(response);
@@ -128,7 +128,7 @@ export const promptHandling = async (cmid) => {
                     renderCategoryInput(); // If no categories, show input field
                 }
                 // Check if the response has categories
-                
+
             }).fail(error => {
                 spinner.hide();
                 console.error('Error:', error.message);
@@ -148,15 +148,15 @@ export const promptHandling = async (cmid) => {
             getContent([{
                 methodname: 'mod_questiongenerator_save_generated_questions',
                 args: {
-                    'cmid':cmid,
-                    'categoryid':categoryValue,
-                    'questionData':questionDataJson
+                    'cmid': cmid,
+                    'categoryid': categoryValue,
+                    'questionData': questionDataJson
                 },
             }])[0].done(response => {
                 $(this).prop('disabled', false); // Re-enable the button after response
                 console.log(response);
                 content.html(response);
-                
+
             }).fail(error => {
                 spinner.hide();
                 console.error('Error:', error.message);
@@ -192,7 +192,7 @@ export const promptHandling = async (cmid) => {
         $('#save-category').text('Save Questions');
         $('#save-category').attr('id', 'save-question');
         // Add event listener for "Create New Category" button
-        $('#createNewCategoryBtn').on('click', function() {
+        $('#createNewCategoryBtn').on('click', function () {
             renderCategoryInput(); // Switch to input text field
         });
     }
@@ -211,7 +211,7 @@ export const promptHandling = async (cmid) => {
 
 
         // Add event listener for "Back to Select" button
-        $('#backToSelectBtn').on('click', function() {
+        $('#backToSelectBtn').on('click', function () {
             // Call the API again or restore previous categories if needed
             getContent([{
                 methodname: 'mod_questiongenerator_get_questions_categories',
@@ -261,5 +261,20 @@ export const promptHandling = async (cmid) => {
         }, 250);
     }
 
+    $(document).on('click', '#attemptquiz', startAttempt);
+    function startAttempt(e) {
+        e.preventDefault();
+    
+        getContent([{
+            methodname: 'mod_questiongenerator_attempt_quiz',
+            args: { cmid: cmid },
+        }])[0].done(response => {
+          if(response.status) {
+            window.location.href = `attempt.php?id=${cmid}`;
+          }
+        }).fail(error => {
+            throw new Error(error.message);
+        });
+    }
 };
 
