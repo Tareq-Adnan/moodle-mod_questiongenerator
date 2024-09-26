@@ -386,7 +386,8 @@ class mod_questiongenerator_external extends external_api
      *
      * @return external_function_parameters
      */
-    public static function create_quiz_parameters() {
+    public static function create_quiz_parameters()
+    {
         return new external_function_parameters([
             'quiz_data' => new external_value(PARAM_RAW, 'Quiz data in JSON format')
         ]);
@@ -399,7 +400,8 @@ class mod_questiongenerator_external extends external_api
      * @return array The status of the quiz creation.
      * @throws invalid_parameter_exception
      */
-    public static function create_quiz($quiz_data) {
+    public static function create_quiz($quiz_data)
+    {
         // Validate parameters.
         self::validate_parameters(self::create_quiz_parameters(), ['quiz_data' => $quiz_data]);
 
@@ -415,7 +417,8 @@ class mod_questiongenerator_external extends external_api
      *
      * @return external_single_structure
      */
-    public static function create_quiz_returns() {
+    public static function create_quiz_returns()
+    {
         return new external_single_structure([
             'status' => new external_value(PARAM_BOOL, 'Status of quiz creation'),
         ]);
@@ -512,8 +515,7 @@ class mod_questiongenerator_external extends external_api
     public static function attempt_quiz_parameters()
     {
         return new external_function_parameters([
-            'quizid' => new external_value(PARAM_INT, 'ID of the quiz'),
-            'attempt_data' => new external_value(PARAM_RAW, 'Attempt data in JSON format'),
+            'cmid' => new external_value(PARAM_INT, 'ID of the course module'),
         ]);
     }
 
@@ -525,19 +527,42 @@ class mod_questiongenerator_external extends external_api
      * @return array The status of quiz attempt.
      * @throws invalid_parameter_exception
      */
-    public static function attempt_quiz($quizid, $attempt_data)
+    public static function attempt_quiz($cmid)
     {
-        // Validate parameters.
-        self::validate_parameters(self::attempt_quiz_parameters(), [
-            'quizid' => $quizid,
-            'attempt_data' => $attempt_data
-        ]);
+        global $DB, $USER;
+        $params = [
+            'cmid' => $cmid,
+        ];
+        self::validate_parameters(self::attempt_quiz_parameters(), $params);
 
-        // Custom logic to attempt the quiz.
-        $status = mod_questiongenerator_attempt_quiz($quizid, $attempt_data);
+        $sql = "SELECT * FROM {qg_quiz} WHERE state = 1 AND cmid = :cmid";
+        $quiz = $DB->get_record_sql($sql, ['cmid' => $params['cmid']]);
+
+        $exists = $DB->record_exists('qg_quiz_attempts', ['quiz' => $quiz->id, 'userid' => $USER->id, 'cmid' => $params['cmid']]);
+
+        $record = $exists ? $DB->get_record('qg_quiz_attempts', ['quiz' => $quiz->id, 'userid' => $USER->id, 'cmid' => $params['cmid']]) : new stdClass();
+        try {
+            if ($exists) {
+                $record->attempt = 1;
+                $DB->update_record('qg_quiz_attempts', $record);
+            } else {
+                $record->userid = $USER->id;
+                $record->quiz = $quiz->id;
+                $record->cmid = $params['cmid'];
+                $record->status = 0;
+                $record->timecreated = time();
+                $record->timemodified = time();
+                $DB->insert_record('qg_quiz_attempts', $record);
+            }
+            return ['status' => true];
+        } catch (Exception $e) {
+            echo $e->getMessage();
+            return ['status' => false];
+        }
+
 
         // Return the attempt status.
-        return ['status' => $status];
+
     }
 
     /**
@@ -588,24 +613,24 @@ class mod_questiongenerator_external extends external_api
     public static function end_quiz($quiz_data, $cmid, $quizid, $marks)
     {
         global $CFG, $USER, $DB;
-        
+
         // Validate parameters.
         $params = ['quiz_data' => $quiz_data, "cmid" => $cmid, 'quizid' => $quizid, 'marks' => $marks];
         self::validate_parameters(self::end_quiz_parameters(), $params);
-    
+
         $cm = get_coursemodule_from_id(null, $cmid);
         // SQL to calculate total marks
         $sql = "SELECT IFNULL(CAST(easy AS SIGNED), 0) + IFNULL(CAST(medium AS SIGNED), 0) + IFNULL(CAST(hard AS SIGNED), 0) AS total_marks
                 FROM {qg_quiz}
                 WHERE id = :quizid AND state = 1";
-    
+
         $quizzes = $DB->get_record_sql($sql, ['quizid' => $quizid]);
         $totalmark = $quizzes->total_marks;
-    
+
         $correct = 0;
         $wrong = 0;
         $total = 0;
-    
+
         $records = [];
         foreach ($quiz_data as $data) {
             $grade = 0;
@@ -620,7 +645,7 @@ class mod_questiongenerator_external extends external_api
             } else {
                 $wrong += 1;
             }
-            
+
             $records[] = [
                 'userid' => $USER->id,
                 'cmid' => $cmid,
@@ -631,10 +656,10 @@ class mod_questiongenerator_external extends external_api
                 'timemodified' => time(),
             ];
         }
-    
+
         // Insert all grades into the database
         $DB->insert_records('qg_grades', $records);
-    
+
         return ['status' => true, 'redirect' => "$CFG->wwwroot/course/view.php?id=$cm->course", 'correct_ans' => $correct, 'wrong' => $wrong, 'total' => $total, 'rawmark' => $totalmark];
     }
 

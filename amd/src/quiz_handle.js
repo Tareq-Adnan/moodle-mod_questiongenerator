@@ -102,9 +102,18 @@ export const quizHandling = async (cmid, quizid, marks) => {
             console.log(response);
             if (response.status) {
                 $('#quizContainer').html(createThankYouMessage(response.correct_ans,response.wrong,response.total,response.rawmark));
+                SubmitForm([{
+                    methodname: 'mod_questiongenerator_attempt_quiz',
+                    args: { cmid: cmid },
+                }])[0].done(response => {
+                }).fail(error => {
+                    throw new Error(error.message);
+                });
+                
                 setInterval(() => {
                     $('#redirect-text').append('.');
                 }, 1000);
+
                 setTimeout(function () {
                     window.location.href = response.redirect;
                 }, 5000);
