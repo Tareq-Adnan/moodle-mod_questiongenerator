@@ -34,38 +34,43 @@ use core_external\external_value;
 
 
 
-class mod_questiongenerator_external extends external_api {
+class mod_questiongenerator_external extends external_api
+{
 
     public static function submit_prompts_parameters()
     {
         return new external_function_parameters(
             array(
-                'prompt' => new external_value(PARAM_TEXT, 'Questions Prompt',VALUE_REQUIRED)
+                'prompt' => new external_value(PARAM_TEXT, 'Questions Prompt', VALUE_REQUIRED)
             )
         );
     }
 
-    public static function submit_prompts($prompt) {
+    public static function submit_prompts($prompt)
+    {
 
         $content = mod_qg_generate($prompt);
 
         return $content;
     }
 
-    public static function submit_prompts_returns() {
-        return new external_value(PARAM_TEXT, 'AI Response ',VALUE_DEFAULT,[]);
+    public static function submit_prompts_returns()
+    {
+        return new external_value(PARAM_TEXT, 'AI Response ', VALUE_DEFAULT, []);
     }
 
-     /**
+    /**
      * Parameters for creating a question category.
      * 
      * @return external_function_parameters
      */
-    public static function create_question_category_parameters() {
+    public static function create_question_category_parameters()
+    {
         return new external_function_parameters(
-            array('cmid' => new external_value(PARAM_INT, 'The cmid'),
-        'categoryname' => new external_value(PARAM_TEXT, 'The name of the category')
-        )
+            array(
+                'cmid' => new external_value(PARAM_INT, 'The cmid'),
+                'categoryname' => new external_value(PARAM_TEXT, 'The name of the category')
+            )
         );
     }
 
@@ -76,11 +81,12 @@ class mod_questiongenerator_external extends external_api {
      * @return array Status of the operation.
      * @throws invalid_parameter_exception If parameters are invalid.
      */
-    public static function create_question_category($cmid,$categoryname) {
+    public static function create_question_category($cmid, $categoryname)
+    {
         global $DB, $USER;
 
         // Validate parameters.
-        $params = self::validate_parameters(self::create_question_category_parameters(), array('cmid' => $cmid,'categoryname' => $categoryname));
+        $params = self::validate_parameters(self::create_question_category_parameters(), array('cmid' => $cmid, 'categoryname' => $categoryname));
         // Insert the new category.
         $record = new stdClass();
         $record->name = $params['categoryname'];
@@ -99,7 +105,8 @@ class mod_questiongenerator_external extends external_api {
      * 
      * @return external_single_structure
      */
-    public static function create_question_category_returns() {
+    public static function create_question_category_returns()
+    {
         return new external_single_structure(
             array('status' => new external_value(PARAM_TEXT, 'Status of the operation'))
         );
@@ -110,9 +117,10 @@ class mod_questiongenerator_external extends external_api {
      * 
      * @return external_function_parameters
      */
-    public static function get_questions_categories_parameters() {
+    public static function get_questions_categories_parameters()
+    {
         return new external_function_parameters(array(
-          
+
         ));
     }
 
@@ -122,7 +130,8 @@ class mod_questiongenerator_external extends external_api {
      * @return array List of question categories.
      * @throws dml_exception If database query fails.
      */
-    public static function get_questions_categories() {
+    public static function get_questions_categories()
+    {
         global $DB;
 
         // Fetch all categories.
@@ -141,7 +150,8 @@ class mod_questiongenerator_external extends external_api {
      * 
      * @return external_multiple_structure
      */
-    public static function get_questions_categories_returns() {
+    public static function get_questions_categories_returns()
+    {
         return new external_multiple_structure(
             new external_single_structure(
                 array(
@@ -157,7 +167,8 @@ class mod_questiongenerator_external extends external_api {
      * 
      * @return external_function_parameters
      */
-    public static function save_generated_questions_parameters() {
+    public static function save_generated_questions_parameters()
+    {
         return new external_function_parameters(
             array(
                 'cmid' => new external_value(PARAM_INT, 'cmid'),
@@ -170,10 +181,10 @@ class mod_questiongenerator_external extends external_api {
                         array(
                             'question' => new external_value(PARAM_TEXT, 'The question text'),
                             'options' => new external_multiple_structure(
-                            new external_value(PARAM_TEXT, 'Each option for the question')
-                                        ),
+                                new external_value(PARAM_TEXT, 'Each option for the question')
+                            ),
                             'correct_answer' => new external_value(PARAM_TEXT, 'The correct answer')
-                                    )
+                        )
                     )
                 )
             )
@@ -188,7 +199,8 @@ class mod_questiongenerator_external extends external_api {
      * @return array Status of the operation.
      * @throws invalid_parameter_exception If parameters are invalid.
      */
-    public static function save_generated_questions($cmid,$categoryid, $questionData) {
+    public static function save_generated_questions($cmid, $categoryid, $questionData)
+    {
         global $DB;
 
         // Validate parameters.
@@ -203,7 +215,7 @@ class mod_questiongenerator_external extends external_api {
             $record->cmid = $params['cmid'];
             $record->category_id = $params['categoryid'];
             $record->question = $question['question'];
-            $record->options = serialize($question['options']) ;
+            $record->options = serialize($question['options']);
             $record->answer = $question['correct_answer'];
             $record->timecreated = time();
             $record->timemodified = time();
@@ -218,7 +230,8 @@ class mod_questiongenerator_external extends external_api {
      * 
      * @return external_single_structure
      */
-    public static function save_generated_questions_returns() {
+    public static function save_generated_questions_returns()
+    {
         return new external_single_structure(
             array('status' => new external_value(PARAM_TEXT, 'Status of the operation'))
         );
@@ -229,10 +242,13 @@ class mod_questiongenerator_external extends external_api {
      * 
      * @return external_function_parameters
      */
-    public static function get_generated_questions_parameters() {
+    public static function get_generated_questions_parameters()
+    {
         return new external_function_parameters(
-            array('categoryid' => new external_value(PARAM_INT, 'The category ID'),
-            'cmid' => new external_value(PARAM_INT, 'The  cmid'))
+            array(
+                'categoryid' => new external_value(PARAM_INT, 'The category ID'),
+                'cmid' => new external_value(PARAM_INT, 'The  cmid')
+            )
         );
     }
 
@@ -243,16 +259,17 @@ class mod_questiongenerator_external extends external_api {
      * @return array List of questions.
      * @throws dml_exception If database query fails.
      */
-    public static function get_generated_questions($categoryid,$cmid) {
+    public static function get_generated_questions($categoryid, $cmid)
+    {
         global $DB;
 
-        $params = self::validate_parameters(self::get_generated_questions_parameters(), array('categoryid' => $categoryid,'cmid' => $cmid));
+        $params = self::validate_parameters(self::get_generated_questions_parameters(), array('categoryid' => $categoryid, 'cmid' => $cmid));
 
         $categoryid = $params['categoryid'];
         $cmid = $params['cmid'];
 
 
-        $questions = $DB->get_records('qg_questions', ['category_id' => $categoryid,'cmid' => $cmid]);
+        $questions = $DB->get_records('qg_questions', ['category_id' => $categoryid, 'cmid' => $cmid]);
 
         $questiondata = [];
         foreach ($questions as $question) {
@@ -275,7 +292,8 @@ class mod_questiongenerator_external extends external_api {
      * 
      * @return external_multiple_structure
      */
-    public static function get_generated_questions_returns() {
+    public static function get_generated_questions_returns()
+    {
         return new external_multiple_structure(
             new external_single_structure(
                 array(
@@ -294,7 +312,8 @@ class mod_questiongenerator_external extends external_api {
      * 
      * @return external_function_parameters
      */
-    public static function check_dificulty_level_parameters() {
+    public static function check_dificulty_level_parameters()
+    {
         return new external_function_parameters(
             array('questionid' => new external_value(PARAM_INT, 'The question ID'))
         );
@@ -307,47 +326,48 @@ class mod_questiongenerator_external extends external_api {
      * @return array The calculated difficulty level.
      * @throws invalid_parameter_exception If parameters are invalid.
      */
-    public static function check_dificulty_level($questionid) {
+    public static function check_dificulty_level($questionid)
+    {
         global $DB; // Ensure this is declared at the top of the file
 
         // Validate parameters.
-    // Validate parameters.
-    $params = self::validate_parameters(self::check_dificulty_level_parameters(), array('questionid' => $questionid));
-    $questionid = $params['questionid'];
-    // Fetch the question from the database
-    $question = $DB->get_records('qg_questions', ['id' => $questionid]);
+        // Validate parameters.
+        $params = self::validate_parameters(self::check_dificulty_level_parameters(), array('questionid' => $questionid));
+        $questionid = $params['questionid'];
+        // Fetch the question from the database
+        $question = $DB->get_records('qg_questions', ['id' => $questionid]);
 
-    // Check if question exists
-    if (!$question) {
-        throw new invalid_parameter_exception('Invalid question ID');
-    }
-    $question_data = $question[$questionid];
-    $prompt = "Question = ".$question_data->question ."Options = ".  $question_data->options ."Answer = ". $question_data->answer;
-    $content = mod_qg_question_difficulty($prompt);
-    // Initialize an empty variable for question level
-    $question_level = '';
-    $content = strtolower($content);
+        // Check if question exists
+        if (!$question) {
+            throw new invalid_parameter_exception('Invalid question ID');
+        }
+        $question_data = $question[$questionid];
+        $prompt = "Question = " . $question_data->question . "Options = " . $question_data->options . "Answer = " . $question_data->answer;
+        $content = mod_qg_question_difficulty($prompt);
+        // Initialize an empty variable for question level
+        $question_level = '';
+        $content = strtolower($content);
 
-    // Check if content contains 'easy', 'medium', or 'hard'
-    if (strpos($content, 'easy') !== false) {
-        $question_level = 'easy';
-    } elseif (strpos($content, 'medium') !== false) {
-        $question_level = 'medium';
-    } elseif (strpos($content, 'hard') !== false) {
-        $question_level = 'hard';
-    }
+        // Check if content contains 'easy', 'medium', or 'hard'
+        if (strpos($content, 'easy') !== false) {
+            $question_level = 'easy';
+        } elseif (strpos($content, 'medium') !== false) {
+            $question_level = 'medium';
+        } elseif (strpos($content, 'hard') !== false) {
+            $question_level = 'hard';
+        }
 
-    // If question level is determined, update the database
-    if (!empty($question_level)) {
-        $DB->update_record('qg_questions', (object) [
-            'id' => $questionid,
-            'question_level' => $question_level
-        ]);
-    }
-    $question_level = ucwords($question_level);
+        // If question level is determined, update the database
+        if (!empty($question_level)) {
+            $DB->update_record('qg_questions', (object) [
+                'id' => $questionid,
+                'question_level' => $question_level
+            ]);
+        }
+        $question_level = ucwords($question_level);
 
-    return $question_level;
-    
+        return $question_level;
+
     }
 
     /**
@@ -355,12 +375,13 @@ class mod_questiongenerator_external extends external_api {
      * 
      * @return external_single_structure
      */
-    public static function check_dificulty_level_returns() {
-        return new external_value(PARAM_TEXT, 'AI Response ',VALUE_DEFAULT,[]);
+    public static function check_dificulty_level_returns()
+    {
+        return new external_value(PARAM_TEXT, 'AI Response ', VALUE_DEFAULT, []);
 
     }
 
-     /**
+    /**
      * Describes the parameters for create_quiz web service.
      *
      * @return external_function_parameters
@@ -405,7 +426,8 @@ class mod_questiongenerator_external extends external_api {
      *
      * @return external_function_parameters
      */
-    public static function get_quiz_parameters() {
+    public static function get_quiz_parameters()
+    {
         return new external_function_parameters([]);
     }
 
@@ -415,7 +437,8 @@ class mod_questiongenerator_external extends external_api {
      * @return array The list of quizzes.
      * @throws invalid_parameter_exception
      */
-    public static function get_quiz() {
+    public static function get_quiz()
+    {
         // Your custom logic to fetch the quiz data.
         $quizzes = mod_questiongenerator_get_quizzes();
 
@@ -428,10 +451,11 @@ class mod_questiongenerator_external extends external_api {
      *
      * @return external_multiple_structure
      */
-    public static function get_quiz_returns() {
+    public static function get_quiz_returns()
+    {
         return new external_multiple_structure(
             new external_single_structure([
-                'id'   => new external_value(PARAM_INT, 'Quiz ID'),
+                'id' => new external_value(PARAM_INT, 'Quiz ID'),
                 'name' => new external_value(PARAM_TEXT, 'Quiz Name'),
             ])
         );
@@ -442,7 +466,8 @@ class mod_questiongenerator_external extends external_api {
      *
      * @return external_function_parameters
      */
-    public static function start_quiz_parameters() {
+    public static function start_quiz_parameters()
+    {
         return new external_function_parameters([
             'quizid' => new external_value(PARAM_INT, 'ID of the quiz to start')
         ]);
@@ -455,7 +480,8 @@ class mod_questiongenerator_external extends external_api {
      * @return array The status of starting the quiz.
      * @throws invalid_parameter_exception
      */
-    public static function start_quiz($quizid) {
+    public static function start_quiz($quizid)
+    {
         // Validate parameters.
         self::validate_parameters(self::start_quiz_parameters(), ['quizid' => $quizid]);
 
@@ -471,7 +497,8 @@ class mod_questiongenerator_external extends external_api {
      *
      * @return external_single_structure
      */
-    public static function start_quiz_returns() {
+    public static function start_quiz_returns()
+    {
         return new external_single_structure([
             'status' => new external_value(PARAM_BOOL, 'Status of quiz start'),
         ]);
@@ -482,7 +509,8 @@ class mod_questiongenerator_external extends external_api {
      *
      * @return external_function_parameters
      */
-    public static function attempt_quiz_parameters() {
+    public static function attempt_quiz_parameters()
+    {
         return new external_function_parameters([
             'quizid' => new external_value(PARAM_INT, 'ID of the quiz'),
             'attempt_data' => new external_value(PARAM_RAW, 'Attempt data in JSON format'),
@@ -497,7 +525,8 @@ class mod_questiongenerator_external extends external_api {
      * @return array The status of quiz attempt.
      * @throws invalid_parameter_exception
      */
-    public static function attempt_quiz($quizid, $attempt_data) {
+    public static function attempt_quiz($quizid, $attempt_data)
+    {
         // Validate parameters.
         self::validate_parameters(self::attempt_quiz_parameters(), [
             'quizid' => $quizid,
@@ -516,7 +545,8 @@ class mod_questiongenerator_external extends external_api {
      *
      * @return external_single_structure
      */
-    public static function attempt_quiz_returns() {
+    public static function attempt_quiz_returns()
+    {
         return new external_single_structure([
             'status' => new external_value(PARAM_BOOL, 'Status of quiz attempt'),
         ]);
@@ -527,9 +557,24 @@ class mod_questiongenerator_external extends external_api {
      *
      * @return external_function_parameters
      */
-    public static function end_quiz_parameters() {
+    public static function end_quiz_parameters()
+    {
         return new external_function_parameters([
-            'quizid' => new external_value(PARAM_INT, 'ID of the quiz to end')
+            'quiz_data' => new external_multiple_structure(
+                new external_single_structure([
+                    'answer' => new external_value(PARAM_INT, 'The answer for the question'),
+                    'question' => new external_value(PARAM_INT, 'The question ID'),
+                    'ref' => new external_value(PARAM_TEXT, 'Reference for the question'),
+                    'type' => new external_value(PARAM_TEXT, 'The question type'),
+                ])
+            ),
+            'cmid' => new external_value(PARAM_INT, 'The course module ID'),
+            'quizid' => new external_value(PARAM_INT, 'The quiz ID'),
+            'marks' => new external_single_structure([
+                'easy' => new external_value(PARAM_INT, 'Total easy marks'),
+                'medium' => new external_value(PARAM_INT, 'Total medium marks'),
+                'hard' => new external_value(PARAM_INT, 'Total hard marks'),
+            ])
         ]);
     }
 
@@ -540,15 +585,57 @@ class mod_questiongenerator_external extends external_api {
      * @return array The status of quiz submission.
      * @throws invalid_parameter_exception
      */
-    public static function end_quiz($quizid) {
+    public static function end_quiz($quiz_data, $cmid, $quizid, $marks)
+    {
+        global $CFG, $USER, $DB;
+        
         // Validate parameters.
-        self::validate_parameters(self::end_quiz_parameters(), ['quizid' => $quizid]);
-
-        // Custom logic to end the quiz.
-        $status = mod_questiongenerator_end_quiz($quizid);
-
-        // Return the end status.
-        return ['status' => $status];
+        $params = ['quiz_data' => $quiz_data, "cmid" => $cmid, 'quizid' => $quizid, 'marks' => $marks];
+        self::validate_parameters(self::end_quiz_parameters(), $params);
+    
+        $cm = get_coursemodule_from_id(null, $cmid);
+        // SQL to calculate total marks
+        $sql = "SELECT IFNULL(CAST(easy AS SIGNED), 0) + IFNULL(CAST(medium AS SIGNED), 0) + IFNULL(CAST(hard AS SIGNED), 0) AS total_marks
+                FROM {qg_quiz}
+                WHERE id = :quizid AND state = 1";
+    
+        $quizzes = $DB->get_record_sql($sql, ['quizid' => $quizid]);
+        $totalmark = $quizzes->total_marks;
+    
+        $correct = 0;
+        $wrong = 0;
+        $total = 0;
+    
+        $records = [];
+        foreach ($quiz_data as $data) {
+            $grade = 0;
+            if ($data['answer'] === intval(base64_decode($data['ref']))) {
+                $correct += 1;
+                match ($data['type']) {
+                    'easy' => $grade = $marks['easy'],
+                    'medium' => $grade = $marks['medium'],
+                    'hard' => $grade = $marks['hard'],
+                };
+                $total += $grade;
+            } else {
+                $wrong += 1;
+            }
+            
+            $records[] = [
+                'userid' => $USER->id,
+                'cmid' => $cmid,
+                'quizid' => $quizid,
+                'questionid' => $data['question'],
+                'grade' => $grade,
+                'timecreated' => time(),
+                'timemodified' => time(),
+            ];
+        }
+    
+        // Insert all grades into the database
+        $DB->insert_records('qg_grades', $records);
+    
+        return ['status' => true, 'redirect' => "$CFG->wwwroot/course/view.php?id=$cm->course", 'correct_ans' => $correct, 'wrong' => $wrong, 'total' => $total, 'rawmark' => $totalmark];
     }
 
     /**
@@ -556,9 +643,15 @@ class mod_questiongenerator_external extends external_api {
      *
      * @return external_single_structure
      */
-    public static function end_quiz_returns() {
+    public static function end_quiz_returns()
+    {
         return new external_single_structure([
-            'status' => new external_value(PARAM_BOOL, 'Status of quiz submission'),
+            'status' => new external_value(PARAM_BOOL, 'Status of quiz creation'),
+            'redirect' => new external_value(PARAM_TEXT, 'Redirect URL'),
+            'correct_ans' => new external_value(PARAM_INT, 'Number of correct answers'),
+            'wrong' => new external_value(PARAM_INT, 'Number of wrong answers'),
+            'total' => new external_value(PARAM_INT, 'Total marks obtained'),
+            'rawmark' => new external_value(PARAM_INT, 'Raw total marks')
         ]);
     }
 
@@ -567,7 +660,8 @@ class mod_questiongenerator_external extends external_api {
      *
      * @return external_function_parameters
      */
-    public static function get_grades_parameters() {
+    public static function get_grades_parameters()
+    {
         return new external_function_parameters([
             'quizid' => new external_value(PARAM_INT, 'ID of the quiz')
         ]);
@@ -580,7 +674,8 @@ class mod_questiongenerator_external extends external_api {
      * @return array List of grades for the quiz.
      * @throws invalid_parameter_exception
      */
-    public static function get_grades($quizid) {
+    public static function get_grades($quizid)
+    {
         // Validate parameters.
         self::validate_parameters(self::get_grades_parameters(), ['quizid' => $quizid]);
 
@@ -596,11 +691,12 @@ class mod_questiongenerator_external extends external_api {
      *
      * @return external_multiple_structure
      */
-    public static function get_grades_returns() {
+    public static function get_grades_returns()
+    {
         return new external_multiple_structure(
             new external_single_structure([
                 'userid' => new external_value(PARAM_INT, 'User ID'),
-                'grade'  => new external_value(PARAM_FLOAT, 'User grade'),
+                'grade' => new external_value(PARAM_FLOAT, 'User grade'),
             ])
         );
     }

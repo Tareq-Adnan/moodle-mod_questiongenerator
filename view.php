@@ -55,6 +55,7 @@ $PAGE->requires->css('/mod/questiongenerator/css/style.css');
 echo $OUTPUT->header();
 
 if(has_capability('mod/questiongenerator:attemptquiz', $context) && !is_siteadmin()) {
+
     echo $OUTPUT->render_from_template('mod_questiongenerator/attempt_quiz', ['url'=>new moodle_url('/mod/questiongenerator/attempt.php', ['id' => $cm->id])]);
 } else {
     echo $OUTPUT->render_from_template('mod_questiongenerator/view', $context);
