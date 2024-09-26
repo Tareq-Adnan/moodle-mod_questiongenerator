@@ -41,7 +41,7 @@
         <FIELD NAME="question" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Question Title"/>
         <FIELD NAME="options" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Question options"/>
         <FIELD NAME="answer" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Question answer"/>
-        <FIELD NAME="question_level" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Question Level"/>
+        <FIELD NAME="question_level" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Question Level"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp of when the record added"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp of when the record was last modified."/>
       </FIELDS>
@@ -57,10 +57,11 @@
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="quiz_title" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Question Title"/>
-        <FIELD NAME="easy" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Question options"/>
-        <FIELD NAME="medium" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Question answer"/>
+        <FIELD NAME="quiz_title" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Quiz Title"/>
+        <FIELD NAME="easy" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Question Level"/>
+        <FIELD NAME="medium" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Question Level"/>
         <FIELD NAME="hard" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Question Level"/>
+        <FIELD NAME="state" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp of when the record added"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp of when the record was last modified."/>
       </FIELDS>
