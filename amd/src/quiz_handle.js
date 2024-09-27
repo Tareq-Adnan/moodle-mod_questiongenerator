@@ -70,26 +70,33 @@ export const quizHandling = async (cmid, quizid, marks) => {
         event.preventDefault();
         next.innerHTML = `<span class="spinner-border text-light" role="status" style='height:1.5rem !important; width:1.5rem !important;vertical-align:middle !important'>
                             </span>`;
-       $('#nextBtn').prop('disabled', true);
+        $('#nextBtn').prop('disabled', true);
 
-      
+
         let formDataAssocArray = [];
-        $('#quizForm input[type="radio"]:checked').each(function() {
-            const questionId = $(this).attr('name').split('_')[1]; 
-            const answerIndex = $(this).val(); 
-            const refValue = $(this).data('ref'); 
+        $('#quizForm input[type="radio"]:checked').each(function () {
+            const questionId = $(this).attr('name').split('_')[1];
+            const answerIndex = $(this).val();
+            const refValue = $(this).data('ref');
             const type = $(this).data('type')
-    
+
             // Push the relevant data to the array
             formDataAssocArray.push({
                 answer: answerIndex,
                 question: questionId,
                 ref: refValue,
-                type:type.toLowerCase()
+                type: type.toLowerCase()
             });
         });
 
-      
+        SubmitForm([{
+            methodname: 'mod_questiongenerator_attempt_quiz',
+            args: { cmid: cmid, status:'finished' },
+        }])[0].done(response => {
+        }).fail(error => {
+            throw new Error(error.message);
+        });
+
         SubmitForm([{
             methodname: 'mod_questiongenerator_end_quiz',
             args: {
@@ -101,15 +108,7 @@ export const quizHandling = async (cmid, quizid, marks) => {
         }])[0].done(response => {
             console.log(response);
             if (response.status) {
-                $('#quizContainer').html(createThankYouMessage(response.correct_ans,response.wrong,response.total,response.rawmark));
-                SubmitForm([{
-                    methodname: 'mod_questiongenerator_attempt_quiz',
-                    args: { cmid: cmid },
-                }])[0].done(response => {
-                }).fail(error => {
-                    throw new Error(error.message);
-                });
-                
+                $('#quizContainer').html(createThankYouMessage(response.correct_ans, response.wrong, response.total, response.rawmark));
                 setInterval(() => {
                     $('#redirect-text').append('.');
                 }, 1000);
@@ -130,11 +129,9 @@ export const quizHandling = async (cmid, quizid, marks) => {
             console.error('Error:', error.message);
 
         });
-
-
     })
 
-    function createThankYouMessage(correct,wrong,mark,totalmark) {
+    function createThankYouMessage(correct, wrong, mark, totalmark) {
 
         return `
         <div class="success-checkmark">
