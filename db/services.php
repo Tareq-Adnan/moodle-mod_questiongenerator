@@ -124,5 +124,13 @@ $functions = [
         'ajax'          => true,
         'capabilities'  => 'mod/questiongenerator:view',
         'services'      => array(MOODLE_OFFICIAL_MOBILE_SERVICE)
+    ],'mod_questiongenerator_update_quiz_state' => [
+        'classname'     => 'mod_questiongenerator_external',
+        'methodname'    => 'update_quiz_state',
+        'description'   => 'Update Quiz State',
+        'type'          => 'Write',
+        'ajax'          => true,
+        'capabilities'  => 'mod/questiongenerator:view',
+        'services'      => array(MOODLE_OFFICIAL_MOBILE_SERVICE)
     ]
 ];

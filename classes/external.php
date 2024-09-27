@@ -786,4 +786,27 @@ class mod_questiongenerator_external extends external_api
             ])
         );
     }
+
+    public static function update_quiz_state_parameters()
+    {
+        return new external_function_parameters([
+            'quizid' => new external_value(PARAM_INT, 'ID of the quiz'),
+        ]);
+    }
+
+    public static function update_quiz_state($quizid)
+    {
+        self::validate_parameters(self::update_quiz_state_parameters(), ['quizid' => $quizid]);
+
+        $status = mod_questiongenerator_update_quiz_state($quizid);
+
+        return ['status' => $status];
+    }
+
+    public static function update_quiz_state_returns()
+    {
+        return new external_single_structure([
+            'status' => new external_value(PARAM_BOOL, 'Status of quiz state update'),
+        ]);
+    }
 }
