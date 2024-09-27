@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * TODO describe file quiz
+ * TODO describe file quizresult
  *
  * @package    mod_questiongenerator
  * @copyright  2024 YOUR NAME <your@email.com>
@@ -23,13 +23,15 @@
  */
 
 require('../../config.php');
-require_login();
 
+require_login();
 $cmid = optional_param('id', 0, PARAM_INT);
+$user = required_param('user',PARAM_INT);
+$quiz = required_param('quiz', PARAM_INT);
 global $DB, $OUTPUT, $PAGE;
 
 
-$url = new moodle_url('/mod/questiongenerator/attempt.php');
+$url = new moodle_url('/mod/questiongenerator/quizresult.php');
 $PAGE->set_url($url);
 $context = context_module::instance($cmid);
 $cm = get_coursemodule_from_id('questiongenerator', $cmid, 0, false, MUST_EXIST);
@@ -37,27 +39,19 @@ $PAGE->set_cm($cm);
 $PAGE->set_context($context);
 $PAGE->set_heading(get_string('qggrade', 'questiongenerator'));
 $PAGE->set_title(get_string('qggrade', 'questiongenerator'));
+$PAGE->requires->js_call_amd('mod_questiongenerator/quiz_result', 'quizResult', array('cmid'=>$cmid));
+$PAGE->requires->css('/mod/questiongenerator/css/style.css');
 
+$cap = has_capability('mod/questiongenerator:attemptquiz', $context);
 
-$sql = "SELECT aiquestion.question, aiquestion.answer, aiquestion.id as questionid, aiquestion.question_level as level, aiquestion.options
-           FROM {qg_quiz} quiz
-      LEFT JOIN {qg_quiz_questions} question ON quiz.id = question.quizid 
-      LEFT JOIN {qg_questions} aiquestion ON question.questionid = aiquestion.id
-          WHERE quiz.state = 1 AND quiz.cmid = :cmid";
-$questions = $DB->get_records_sql($sql, ['cmid' => $cmid]);
+$sql = "SELECT  grade.questionid,grade.grade, grade.answer as selected, question.question,question.options,question.answer, question.question_level as level, quiz.quiz_title
+          FROM {qg_grades} grade
+      JOIN {qg_questions} question ON grade.questionid = question.id
+      JOIN {qg_quiz} quiz ON grade.quizid = quiz.id
+         WHERE grade.userid = :userid AND grade.quizid = :quizid
+          ";
+$questions = $DB->get_records_sql($sql, ['userid' => !$cap ? $user: $USER->id,'quizid' => $quiz]);
 
-$quiz = $DB->get_record('qg_quiz', ['cmid' => $cmid, 'state' => 1], 'id, easy, medium, hard');
-
-// $totalMarkeasy = $quiz->easy;
-// $totalmarkmedium = $quiz->medium;
-// $totalMarkhard = $quiz->hard;
-
-// Initialize counts for each difficulty level
-$countEasy = 0;
-$countMedium = 0;
-$countHard = 0;
-
-// Process questions and add the index for options
 $questions = array_map(function ($question) use (&$countEasy, &$countMedium, &$countHard) {
     $question->options = unserialize($question->options);
     
@@ -83,7 +77,9 @@ $questions = array_map(function ($question) use (&$countEasy, &$countMedium, &$c
     foreach ($question->options as $index => $option) {
         $question->indexed_options[] = [
             'index' => $index + 1,
-            'value' => $option
+            'value' => $option,
+            'correct' => $option === $question->answer? true:false,
+            'selected' => $index + 1 == $question->selected? true:false,
         ];
         if($option === $question->answer) {
             $question->answer = base64_encode($index+1);
@@ -92,23 +88,19 @@ $questions = array_map(function ($question) use (&$countEasy, &$countMedium, &$c
 
     return $question;
 }, $questions);
+// echo "<pre>";
+// var_dump($questions);
+// die;
+// $quiz = $DB->get_record('qg_quiz', ['cmid' => $cmid, 'state' => 1], 'id, easy, medium, hard');
 
-// // Calculate per-question mark for each difficulty level
-// $easyPerQuestionMark = $countEasy > 0 ? $totalMarkeasy / $countEasy : 0;
-// $mediumPerQuestionMark = $countMedium > 0 ? $totalmarkmedium / $countMedium : 0;
-// $hardPerQuestionMark = $countHard > 0 ? $totalMarkhard / $countHard : 0;
-$marks = [
-    'easy' => $quiz->easy,
-    'medium' => $quiz->medium,
-    'hard' => $quiz->hard
-];
-$PAGE->requires->js_call_amd('mod_questiongenerator/quiz_handle', 'quizHandling', ['cmid' => $cmid,'quizid' => $quiz->id,'marks' => $marks]);
 
-//  echo "<pre>";
-//  var_dump($marks);
-//  die;
 echo $OUTPUT->header();
+if($questions){
+    echo $OUTPUT->render_from_template('mod_questiongenerator/result', ['questions'=>array_values($questions),'quiz_title' => array_values($questions)[0]->quiz_title]);
+} else {
+   echo html_writer::tag('p', 'Quiz Not Available at this moment',['class' => 'alert alert-info']);
+   echo html_writer::start_div('vh-100');
 
-echo $OUTPUT->render_from_template('mod_questiongenerator/attempt', ['questions' => array_values($questions)]);
+}
 
 echo $OUTPUT->footer();

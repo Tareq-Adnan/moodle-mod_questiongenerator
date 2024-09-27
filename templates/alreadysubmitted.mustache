@@ -1,0 +1,98 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_questiongenerator/alreadysubmitted
+
+    TODO describe template alreadysubmitted
+
+    Example context (json):
+    {
+    }
+}}
+
+<style>
+    .congratulation-wrapper {
+        max-width: 550px;
+        margin-inline: auto;
+        /* -webkit-box-shadow: 0 0 20px #f3f3f3; */
+        /* box-shadow: 0 0 20px #f3f3f3; */
+        padding: 30px 20px;
+        background-color: #fff;
+        border-radius: 10px;
+    }
+
+    .congratulation-contents.center-text .congratulation-contents-icon {
+        margin-inline: auto;
+    }
+    .congratulation-contents-icon {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+        height: 100px;
+        width: 100px;
+        background-color: #65c18c;
+        color: #fff;
+        font-size: 50px;
+        border-radius: 50%;
+        margin-bottom: 30px;
+    }
+    .congratulation-contents-title {
+        font-size: 24px;
+        line-height: 36px;
+        margin: -6px 0 0;
+        color: #009688;
+    }
+    .congratulation-contents-para {
+        font-size: 16px;
+        line-height: 24px;
+        color: gray;
+    }
+    .btn-wrapper {
+        display: block;
+    }
+    .cmn-btn.btn-bg-1 {
+        background: #6176f6;
+        color: #fff;
+        border: 2px solid transparent;
+        border-radius:3px;
+        text-decoration: none;
+        padding:5px;
+    }
+</style>
+    <!-- Congratulations area start -->
+    <div class="congratulation-area text-center mt-5">
+        <div class="container">
+            <div class="congratulation-wrapper">
+                <div class="congratulation-contents center-text">
+                    <div class="congratulation-contents-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <h5 class="congratulation-contents-title"> Quiz Submitted! </h5>
+                    <p class="congratulation-contents-para"> This quiz is submitted by this user</p>
+                    <!-- <div class="btn-wrapper mt-4">
+                        <a href="" class="cmn-btn btn-bg-1"> Go to Home </a>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+    </div>
