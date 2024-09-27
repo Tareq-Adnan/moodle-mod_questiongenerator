@@ -516,6 +516,7 @@ class mod_questiongenerator_external extends external_api
     {
         return new external_function_parameters([
             'cmid' => new external_value(PARAM_INT, 'ID of the course module'),
+            'status' => new external_value(PARAM_TEXT, 'ID of the course module'),
         ]);
     }
 
@@ -527,25 +528,27 @@ class mod_questiongenerator_external extends external_api
      * @return array The status of quiz attempt.
      * @throws invalid_parameter_exception
      */
-    public static function attempt_quiz($cmid)
+    public static function attempt_quiz($cmid,$status)
     {
         global $DB, $USER;
         $params = [
             'cmid' => $cmid,
+            'status' => $status,
         ];
         self::validate_parameters(self::attempt_quiz_parameters(), $params);
 
         $sql = "SELECT * FROM {qg_quiz} WHERE state = 1 AND cmid = :cmid";
         $quiz = $DB->get_record_sql($sql, ['cmid' => $params['cmid']]);
 
-        $exists = $DB->record_exists('qg_quiz_attempts', ['quiz' => $quiz->id, 'userid' => $USER->id, 'cmid' => $params['cmid']]);
+        $exists = $DB->record_exists('qg_quiz_attempts', ['quiz' => $quiz->id, 'userid' => $USER->id, 'cmid' => $params['cmid'],'status' => 0]);
 
-        $record = $exists ? $DB->get_record('qg_quiz_attempts', ['quiz' => $quiz->id, 'userid' => $USER->id, 'cmid' => $params['cmid']]) : new stdClass();
+        $record = $exists ? $DB->get_record('qg_quiz_attempts', ['quiz' => $quiz->id, 'userid' => $USER->id, 'cmid' => $params['cmid'],'status' => 0]) : new stdClass();
         try {
-            if ($exists) {
-                $record->attempt = 1;
+            if ($exists && $params['status'] === 'finished') {
+                $record->status = 1;
+                $record->timemodified = time();
                 $DB->update_record('qg_quiz_attempts', $record);
-            } else {
+            } else if (!$exists && $params['status'] === 'start') {
                 $record->userid = $USER->id;
                 $record->quiz = $quiz->id;
                 $record->cmid = $params['cmid'];
