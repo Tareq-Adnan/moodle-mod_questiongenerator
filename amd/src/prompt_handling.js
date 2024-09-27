@@ -70,7 +70,9 @@ export const promptHandling = async (cmid) => {
 
             getContent([{
                 methodname: 'mod_questiongenerator_get_questions_categories',
-                args: {},
+                args: {
+                    'cmid': cmid
+                },
             }])[0].done(response => {
                 $(this).prop('disabled', false); // Re-enable the button after response
 
@@ -109,7 +111,10 @@ export const promptHandling = async (cmid) => {
                 if (response.status) {
                     getContent([{
                         methodname: 'mod_questiongenerator_get_questions_categories',
-                        args: {},
+                        args: {
+                            'cmid':cmid
+
+                        },
                     }])[0].done(response => {
                         $(this).prop('disabled', false); // Re-enable the button after response
 
@@ -137,12 +142,18 @@ export const promptHandling = async (cmid) => {
         }
     });
     $(document).on('click', '#save-question', function () {
-        $(this).prop('disabled', true); // Disable the button to prevent multiple clicks
-        // $(this).attr('id','savecat-question');
+        let $this = $(this);
+        $this.prop('disabled', true); // Disable the button to prevent multiple clicks
+        
         let categoryValue = $('#category').val();
         console.log(categoryValue);
+    
         content.empty(); // Clear the content
-
+    
+        // Show saving animation
+        let savingAnimation = $('<div class="saving-animation">Saving...</div>');
+        content.append(savingAnimation);
+    
         if (questionData) {
             var questionDataJson = JSON.parse(questionData);
             getContent([{
@@ -153,17 +164,28 @@ export const promptHandling = async (cmid) => {
                     'questionData': questionDataJson
                 },
             }])[0].done(response => {
-                $(this).prop('disabled', false); // Re-enable the button after response
+                $this.prop('disabled', false); // Re-enable the button after response
                 console.log(response);
-                content.html(response);
-
+    
+                // Remove saving animation and show success icon
+                savingAnimation.remove();
+                let successIcon = $('<div class="success-icon">✔️ Saved</div>');
+                content.html(successIcon);
+    
             }).fail(error => {
                 spinner.hide();
                 console.error('Error:', error.message);
-                $(this).prop('disabled', false); // Re-enable the button in case of error
+                
+                // Remove saving animation
+                savingAnimation.remove();
+                $this.prop('disabled', false); // Re-enable the button in case of error
             });
         }
+    
+        // Remove modal footer
+        $('.modal-footer').remove();
     });
+    
     // $(document).on('click', '.save-btn', function (e) {
     //    e.preventDefault();
     //    let category = $('#category').val();
@@ -215,7 +237,9 @@ export const promptHandling = async (cmid) => {
             // Call the API again or restore previous categories if needed
             getContent([{
                 methodname: 'mod_questiongenerator_get_questions_categories',
-                args: {},
+                args: {
+                    'cmid':cmid
+                },
             }])[0].done(response => {
                 renderCategorySelect(response);
             });

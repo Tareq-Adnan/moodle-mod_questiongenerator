@@ -138,5 +138,12 @@
     color: white;
 
   }
-
-  
+  #setQuizBtn {
+    position: sticky;
+    bottom: 20px;
+    left: 100%;
+    right: 20px;
+    visibility: hidden; /* Hide the button initially */
+    border: none;
+    cursor: pointer;
+}
