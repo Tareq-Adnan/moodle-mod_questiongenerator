@@ -152,7 +152,7 @@ export const quizHandling = async (cmid, quizid, marks) => {
         <p class="mb-1">
             <span><strong class=' text-success'>Correct:</strong> ${correct}, <strong class=' text-warning'>Wrong:</strong> ${wrong}</span>
         </p>
-        <a class='text-center' style='font-weight:400' href='grade.php?id=${cmid}'> See in Details</a>
+        <a class='text-center' style='font-weight:400' href='quizresult.php?id=${cmid}&user=0&quiz=${quizid}'> See in Details</a>
     </div>
     <div>
         <i class="bi bi-check-circle-fill text-success" style="font-size: 1.5rem;"></i>

@@ -415,6 +415,7 @@ class mod_questiongenerator_external extends external_api
         $quizrecord->easy = $quiz_data_array['easy_marks'];
         $quizrecord->medium = $quiz_data_array['medium_marks'];
         $quizrecord->hard = $quiz_data_array['hard_marks'];
+        $quizrecord->state = 0;
         $quizrecord->timecreated = time();
         $quizrecord->timemodified = time();
     
@@ -652,37 +653,65 @@ class mod_questiongenerator_external extends external_api
 
         $cm = get_coursemodule_from_id(null, $cmid);
         // SQL to calculate total marks
-        $sql = "SELECT IFNULL(CAST(easy AS SIGNED), 0) + IFNULL(CAST(medium AS SIGNED), 0) + IFNULL(CAST(hard AS SIGNED), 0) AS total_marks
-                FROM {qg_quiz}
-                WHERE id = :quizid AND state = 1";
+        // $sql = "SELECT IFNULL(CAST(easy AS SIGNED), 0) + IFNULL(CAST(medium AS SIGNED), 0) + IFNULL(CAST(hard AS SIGNED), 0) AS total_marks
+        //         FROM {qg_quiz}
+        //         WHERE id = :quizid AND state = 1";
 
-        $quizzes = $DB->get_record_sql($sql, ['quizid' => $quizid]);
-        $totalmark = $quizzes->total_marks;
+        // $quizzes = $DB->get_record_sql($sql, ['quizid' => $quizid]);
+        // $totalmark = $quizzes->total_marks;
 
         $correct = 0;
         $wrong = 0;
         $total = 0;
+        $easy = 0;
+        $medium = 0;
+        $hard = 0;
 
         $records = [];
         foreach ($quiz_data as $data) {
             $grade = 0;
             if ($data['answer'] === intval(base64_decode($data['ref']))) {
                 $correct += 1;
-                match ($data['type']) {
-                    'easy' => $grade = $marks['easy'],
-                    'medium' => $grade = $marks['medium'],
-                    'hard' => $grade = $marks['hard'],
-                };
+
+                switch($data['type']) {
+                    case 'easy':
+                        $grade = $marks['easy'];
+                        $easy++;
+                        break;
+                    case 'medium':
+                        $grade = $marks['medium'];
+                        $medium++;
+                        break;
+                    case 'hard':
+                        $grade = $marks['hard'];
+                        $hard++;
+                        break;
+                }
+               
                 $total += $grade;
             } else {
                 $wrong += 1;
+                switch($data['type']) {
+                    case 'easy':
+                        $easy++;
+                        break;
+                    case 'medium':
+                        $medium++;
+                        break;
+                    case 'hard':
+                        $hard++;
+                        break;
+                }
             }
+            
+            $totalmark = $easy*$marks['easy'] + $medium*$marks['medium'] + $hard*$marks['hard'];
 
             $records[] = [
                 'userid' => $USER->id,
                 'cmid' => $cmid,
                 'quizid' => $quizid,
                 'questionid' => $data['question'],
+                'answer' => $data['answer'],
                 'grade' => $grade,
                 'timecreated' => time(),
                 'timemodified' => time(),

@@ -55,8 +55,15 @@ $PAGE->requires->css('/mod/questiongenerator/css/style.css');
 echo $OUTPUT->header();
 
 if(has_capability('mod/questiongenerator:attemptquiz', $context) && !is_siteadmin()) {
+    $quiz = $DB->get_record('qg_quiz', ['cmid' => $cm->id, 'state' => 1]);
 
-    echo $OUTPUT->render_from_template('mod_questiongenerator/attempt_quiz', ['url'=>new moodle_url('/mod/questiongenerator/attempt.php', ['id' => $cm->id])]);
+    $attempt = $DB->get_record('qg_quiz_attempts', ['quiz' => $quiz->id, 'userid' => $USER->id]);
+    if(isset($attempt->status) && $attempt->status == 1) {
+      echo $OUTPUT->render_from_template('mod_questiongenerator/alreadysubmitted',[]);
+    } else {
+        echo $OUTPUT->render_from_template('mod_questiongenerator/attempt_quiz', ['url'=>new moodle_url('/mod/questiongenerator/attempt.php', ['id' => $cm->id]),'text' => isset($attempt->status) && $attempt->status == 0 ? 'Continue': "Attempt Quiz",'quiz_title' =>  $quiz->quiz_title]);
+    }
+
 } else {
     echo $OUTPUT->render_from_template('mod_questiongenerator/view', $context);
 }
