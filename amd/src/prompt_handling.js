@@ -291,7 +291,7 @@ export const promptHandling = async (cmid) => {
     
         getContent([{
             methodname: 'mod_questiongenerator_attempt_quiz',
-            args: { cmid: cmid },
+            args: { cmid: cmid,status:'start' },
         }])[0].done(response => {
           if(response.status) {
             window.location.href = `attempt.php?id=${cmid}`;
