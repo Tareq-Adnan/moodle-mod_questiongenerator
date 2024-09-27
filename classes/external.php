@@ -81,8 +81,7 @@ class mod_questiongenerator_external extends external_api
      * @return array Status of the operation.
      * @throws invalid_parameter_exception If parameters are invalid.
      */
-    public static function create_question_category($cmid, $categoryname)
-    {
+    public static function create_question_category($cmid,$categoryname) {
         global $DB, $USER;
 
         // Validate parameters.
@@ -91,7 +90,7 @@ class mod_questiongenerator_external extends external_api
         $record = new stdClass();
         $record->name = $params['categoryname'];
         $record->cmid = $params['cmid'];
-        $record->userid = $USER->id;
+        $record->userid = $USER->id;  // This will save the current user's ID
         $record->timecreated = time();
         $record->timemodified = time();
 
@@ -120,7 +119,7 @@ class mod_questiongenerator_external extends external_api
     public static function get_questions_categories_parameters()
     {
         return new external_function_parameters(array(
-
+          'cmid' => new external_value(PARAM_INT, 'The cmid')
         ));
     }
 
@@ -130,12 +129,12 @@ class mod_questiongenerator_external extends external_api
      * @return array List of question categories.
      * @throws dml_exception If database query fails.
      */
-    public static function get_questions_categories()
-    {
-        global $DB;
-
+    public static function get_questions_categories($cmid) {
+        global $DB,$USER;
+        $params = self::validate_parameters(self::get_questions_categories_parameters(), array('cmid' => $cmid));
+        $cmid = $params['cmid'];
         // Fetch all categories.
-        $categories = $DB->get_records('qg_categories');
+        $categories = $DB->get_records('qg_categories',['userid' => $USER->id,'cmid' => $cmid] );
 
         $result = [];
         foreach ($categories as $category) {
@@ -199,9 +198,8 @@ class mod_questiongenerator_external extends external_api
      * @return array Status of the operation.
      * @throws invalid_parameter_exception If parameters are invalid.
      */
-    public static function save_generated_questions($cmid, $categoryid, $questionData)
-    {
-        global $DB;
+    public static function save_generated_questions($cmid,$categoryid, $questionData) {
+        global $DB,$USER;
 
         // Validate parameters.
         $params = self::validate_parameters(self::save_generated_questions_parameters(), array(
@@ -217,6 +215,7 @@ class mod_questiongenerator_external extends external_api
             $record->question = $question['question'];
             $record->options = serialize($question['options']);
             $record->answer = $question['correct_answer'];
+            $record->question_level = '';
             $record->timecreated = time();
             $record->timemodified = time();
             $DB->insert_record('qg_questions', $record);
@@ -259,9 +258,8 @@ class mod_questiongenerator_external extends external_api
      * @return array List of questions.
      * @throws dml_exception If database query fails.
      */
-    public static function get_generated_questions($categoryid, $cmid)
-    {
-        global $DB;
+    public static function get_generated_questions($categoryid,$cmid) {
+        global $DB ,$USER;
 
         $params = self::validate_parameters(self::get_generated_questions_parameters(), array('categoryid' => $categoryid, 'cmid' => $cmid));
 
@@ -269,7 +267,7 @@ class mod_questiongenerator_external extends external_api
         $cmid = $params['cmid'];
 
 
-        $questions = $DB->get_records('qg_questions', ['category_id' => $categoryid, 'cmid' => $cmid]);
+        $questions = $DB->get_records('qg_questions', ['category_id' => $categoryid,'cmid' => $cmid ]);
 
         $questiondata = [];
         foreach ($questions as $question) {
@@ -326,9 +324,8 @@ class mod_questiongenerator_external extends external_api
      * @return array The calculated difficulty level.
      * @throws invalid_parameter_exception If parameters are invalid.
      */
-    public static function check_dificulty_level($questionid)
-    {
-        global $DB; // Ensure this is declared at the top of the file
+    public static function check_dificulty_level($questionid) {
+        global $DB ,$USER; // Ensure this is declared at the top of the file
 
         // Validate parameters.
         // Validate parameters.
@@ -400,13 +397,45 @@ class mod_questiongenerator_external extends external_api
      * @return array The status of the quiz creation.
      * @throws invalid_parameter_exception
      */
-    public static function create_quiz($quiz_data)
-    {
+    public static function create_quiz($quiz_data) {
+        global $DB, $USER;
+
         // Validate parameters.
         self::validate_parameters(self::create_quiz_parameters(), ['quiz_data' => $quiz_data]);
+        $quiz_data_array = json_decode($quiz_data, true);
+        if ($quiz_data_array === null) {
+            throw new invalid_parameter_exception('Invalid JSON data provided');
+        }
+    
+        // Prepare the data to insert into the quiz table
+        $quizrecord = new stdClass();
+        $quizrecord->cmid = $quiz_data_array['cmid']; // Passed from the client
+        $quizrecord->userid = $USER->id; // Current user's ID
+        $quizrecord->quiz_title = $quiz_data_array['quiz_title'];
+        $quizrecord->easy = $quiz_data_array['easy_marks'];
+        $quizrecord->medium = $quiz_data_array['medium_marks'];
+        $quizrecord->hard = $quiz_data_array['hard_marks'];
+        $quizrecord->timecreated = time();
+        $quizrecord->timemodified = time();
+    
+        // Insert the quiz record into the database
+        $quizid = $DB->insert_record('qg_quiz', $quizrecord);
+        if($quizid){
+            // Handle selected questions
+            if (!empty($quiz_data_array['selected_questions'])) {
+                foreach ($quiz_data_array['selected_questions'] as $questionid) {
+                    $questionrecord = new stdClass();
+                    $questionrecord->cmid = $quiz_data_array['cmid'];
+                    $questionrecord->quizid = $quizid;
+                    $questionrecord->questionid = $questionid;
+                    $questionrecord->timecreated = time();
+                    $questionrecord->timemodified = time();
 
-        // Logic to create the quiz, using your custom function.
-        $quizid = mod_questiongenerator_create_quiz($quiz_data);
+                    $DB->insert_record('qg_quiz_questions', $questionrecord);
+                }
+            }
+       
+        }
 
         // Return the creation status.
         return ['status' => ($quizid) ? true : false];
