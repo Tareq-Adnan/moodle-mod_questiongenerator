@@ -134,7 +134,15 @@ class mod_questiongenerator_external extends external_api
         $params = self::validate_parameters(self::get_questions_categories_parameters(), array('cmid' => $cmid));
         $cmid = $params['cmid'];
         // Fetch all categories.
-        $categories = $DB->get_records('qg_categories',['userid' => $USER->id,'cmid' => $cmid] );
+        $is_admin = is_siteadmin($USER->id);
+        if($is_admin){
+            $categories = $DB->get_records('qg_categories',['cmid' => $cmid] );
+
+        }
+        else{
+            $categories = $DB->get_records('qg_categories',['userid' => $USER->id,'cmid' => $cmid] );
+
+        }
 
         $result = [];
         foreach ($categories as $category) {
@@ -422,10 +430,24 @@ class mod_questiongenerator_external extends external_api
     
         // Insert the quiz record into the database
         $quizid = $DB->insert_record('qg_quiz', $quizrecord);
+        // Initialize question counts
+        $easy_question_count = 0;
+        $medium_question_count = 0;
+        $hard_question_count = 0;
         if($quizid){
             // Handle selected questions
             if (!empty($quiz_data_array['selected_questions'])) {
                 foreach ($quiz_data_array['selected_questions'] as $questionid) {
+                    $question = $DB->get_record('qg_questions', ['id' => $questionid]);
+
+                    // Check the difficulty level and increment the respective counter
+                    if ($question->question_level == 'easy') {
+                        $easy_question_count++;
+                    } elseif ($question->question_level == 'medium') {
+                        $medium_question_count++;
+                    } elseif ($question->question_level == 'hard') {
+                        $hard_question_count++;
+                    }
                     $questionrecord = new stdClass();
                     $questionrecord->cmid = $quiz_data_array['cmid'];
                     $questionrecord->quizid = $quizid;
@@ -435,6 +457,21 @@ class mod_questiongenerator_external extends external_api
 
                     $DB->insert_record('qg_quiz_questions', $questionrecord);
                 }
+                // Calculate total marks based on difficulty and question count
+                // Calculate total marks based on difficulty and question count
+                $total_easy_marks = $easy_question_count * intval($quiz_data_array['easy_marks']);
+                $total_medium_marks = $medium_question_count * intval($quiz_data_array['medium_marks']);
+                $total_hard_marks = $hard_question_count * intval($quiz_data_array['hard_marks']);
+
+                // Total marks for the quiz
+                $total_marks = $total_easy_marks + $total_medium_marks + $total_hard_marks;
+
+                $DB->update_record('qg_quiz', (object) [
+                    'id' => $quizid,
+                    'total_marks' => $total_marks
+                ]);
+                // Update the total marks in the database for the quiz
+
             }
        
         }
@@ -797,11 +834,30 @@ class mod_questiongenerator_external extends external_api
 
     public static function update_quiz_state($quizid)
     {
-        self::validate_parameters(self::update_quiz_state_parameters(), ['quizid' => $quizid]);
+        global $DB; // Ensure $DB is available
 
-        $status = mod_questiongenerator_update_quiz_state($quizid);
-
-        return ['status' => $status];
+        $params = self::validate_parameters(self::update_quiz_state_parameters(), ['quizid' => $quizid]);
+        
+        // Fetch the quiz from the database based on the validated quiz ID
+        $quiz = $DB->get_record('qg_quiz', ['id' => $params['quizid']], '*', IGNORE_MISSING);
+        
+        // Check if the quiz record exists
+        if (!$quiz) {
+            throw new moodle_exception('invalidquizid', 'mod_questiongenerator', '', $params['quizid'], 'Quiz not found.');
+        }
+        
+        // Toggle the state: if the current state is 0, set it to 1; if it's 1, set it to 0
+        $newstate = ($quiz->state == 0) ? 1 : 0;
+        
+        // Update the quiz state with the new value
+        $status = $DB->update_record('qg_quiz', [
+            'id' => $params['quizid'], 
+            'state' => $newstate // Update the state to the new value
+        ]);
+        
+        // Return a status response
+        return ['status' => $status, 'newstate' => $newstate];
+        
     }
 
     public static function update_quiz_state_returns()
