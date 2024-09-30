@@ -24,6 +24,13 @@
     }
 }}
 
+{{^quiz_title}}
+<div class="alert alert-warning text-center">
+    No quiz Assigned yet!
+</div>
+{{/quiz_title}}
+{{#quiz_title}}
 <div class="text-center" id="attemptquiz">
     <a href="{{url}}" class="btn btn-primary">{{text}}</a>
 </div>
+{{/quiz_title}}

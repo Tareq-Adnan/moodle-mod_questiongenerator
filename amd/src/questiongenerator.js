@@ -217,6 +217,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 const setQuizBtn = document.getElementById('setQuizBtn');
                 const selectAll = document.getElementById('selectAll');
                 // Event listener for the "Select All" checkbox
+                if(selectAll) {
                 selectAll.addEventListener('change', function() {
                     // Select all dynamically generated checkboxes in the table
                     const checkboxes = document.querySelectorAll('#questionTable input[type="checkbox"]:not(:disabled)');
@@ -229,8 +230,12 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                     // Call toggleButton to show or hide the "Set Quiz" button based on the checkbox states
                     toggleButton();
                 });
+            }
                 // Initially hide the button
-                setQuizBtn.style.visibility = 'hidden';
+                if(setQuizBtn) {
+                    setQuizBtn.style.visibility = 'hidden';
+                }
+               
             
                 // Use event delegation to listen for changes in dynamically generated checkboxes
                 document.querySelector('#questionTable').addEventListener('change', function(e) {
@@ -252,7 +257,10 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                     });
             
                     // Show the button if at least one checkbox is checked, otherwise hide it
-                    setQuizBtn.style.visibility = isChecked ? 'visible' : 'hidden';
+                    if(setQuizBtn) {
+                        setQuizBtn.style.visibility = isChecked ? 'visible' : 'hidden';
+                    }
+                   
                 }
             }
             attachCheckboxListeners();

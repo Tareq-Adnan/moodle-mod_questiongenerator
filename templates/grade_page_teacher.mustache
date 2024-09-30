@@ -15,43 +15,53 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_questiongenerator/grade_page
+    @template mod_questiongenerator/grade_page_teacher
 
-    TODO describe template grade_page
+    TODO describe template grade_page_teacher
 
     Example context (json):
     {
     }
 }}
 
-<style>
-    .nav-item.active{
-        border-right: 3px solid blue !important;
-        background-color: #f8f9fa !important;
-    }
-</style>
+
 <div class="">
     <table class="table table-hover">
         <thead>
           <tr>
             <th scope="col">#</th>
+            <th>Student Name</th>
             <th scope="col">Quiz Name</th>
+            <th scope="col">Email</th>
             <th scope="col">Grade</th>
             <th scope="col">Action</th>
            
           </tr>
         </thead>
         <tbody>
-            {{^quizdata}}
+            {{^userdata}}
+         
             <td colspan="4"><p class="text-center">Quiz table is empty!</p></td>
+            {{/userdata}}
+
+         {{#userdata}}
+         
+         <tr>
+            <td>{{index}}</td>
+            <td>{{fullname}}</td>
+            {{^quizdata}}
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
             {{/quizdata}}
          {{#quizdata}}
-         <tr>
-         <td>{{index}}</td>
          <td>{{quiz_title}}</td>
-         <td>{{grade}}/{{totalmark}}</td>
-         <td><a href="quizresult.php?id={{cmid}}&user={{userid}}&quiz={{quizid}}">Details</a></td>
-        </tr>
+         <td>{{email}}</td>
+         <td>{{grade}}/{{totalmark}}{{^grade}}-{{/grade}}</td>
+         <td><a href="quizresult.php?id={{cmid}}&user={{id}}&quiz={{quizid}}">Details</a></td>
          {{/quizdata}}
+        </tr>
+         {{/userdata}}
       </table>
 </div>

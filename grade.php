@@ -22,30 +22,77 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
- require('../../config.php');
- require_login();
- 
- $cmid = optional_param('id', 0, PARAM_INT);
- global $DB, $OUTPUT, $PAGE;
+require('../../config.php');
+require_login();
 
- $url = new moodle_url('/mod/questiongenerator/grade.php');
- $PAGE->set_url($url);
- $context = context_module::instance($cmid);
- $cm = get_coursemodule_from_id('questiongenerator', $cmid, 0, false, MUST_EXIST);
- $PAGE->set_cm($cm);
- $PAGE->set_context($context);
- $PAGE->set_heading(get_string('qggrade', 'questiongenerator'));
- $PAGE->set_title(get_string('qggrade', 'questiongenerator'));
+$cmid = optional_param('id', 0, PARAM_INT);
+global $DB, $OUTPUT, $PAGE;
 
+$url = new moodle_url('/mod/questiongenerator/grade.php');
+$PAGE->set_url($url);
+$context = context_module::instance($cmid);
+$cm = get_coursemodule_from_id('questiongenerator', $cmid, 0, false, MUST_EXIST);
+$PAGE->set_cm($cm);
+$PAGE->set_context($context);
+$PAGE->set_heading(get_string('qggrade', 'questiongenerator'));
+$PAGE->set_title(get_string('qggrade', 'questiongenerator'));
+// $PAGE->requires->js_call_amd('mod_questiongenerator/questiongenerator', 'init', array('cmid' => $cmid));
+$PAGE->requires->css('/mod/questiongenerator/css/style.css');
 
- // Custom JS and CSS
- $PAGE->requires->js_call_amd('mod_questiongenerator/questiongenerator', 'init', array(
-    'cmid'=>$cmid));
+$isstudent = has_capability('mod/questiongenerator:attemptquiz', $context);
 
+echo $OUTPUT->header();
+if ($isstudent) {
 
- $PAGE->requires->css('/mod/questiongenerator/css/style.css');
- 
- echo $OUTPUT->header();
- echo $OUTPUT->render_from_template('mod_questiongenerator/grade_page', []);
- echo $OUTPUT->footer();
- 
+   $sql = "SELECT g.userid, g.quizid, 
+               SUM(g.grade) AS grade, q.easy , q.medium , q.hard, 
+               q.quiz_title AS quiz_title,q.cmid, q.total_marks
+            FROM {qg_grades} g
+            LEFT JOIN {qg_quiz} q ON q.id = g.quizid
+            LEFT JOIN {qg_quiz_attempts} qa ON qa.quiz = g.quizid AND qa.status = 1
+            WHERE g.userid = :userid AND g.cmid = :cmid
+            GROUP BY g.userid, g.quizid, q.quiz_title";
+   $data = $DB->get_records_sql($sql, ['userid' => $USER->id, 'cmid' => $cmid]);
+   foreach (array_values($data) as $index => &$option) {
+      $option->index = $index+1;
+   }
+   // var_dump(array_values($data));
+   // die;
+   echo $OUTPUT->render_from_template('mod_questiongenerator/grade_page', ['quizdata' => array_values($data)]);
+} else {
+
+   $sql = "SELECT u.username, u.id ,CONCAT(u.firstname, ' ',u.lastname) as fullname, u.email
+             FROM {user} u 
+             JOIN {user_enrolments} ue ON ue.userid = u.id
+             JOIN {enrol} e ON e.id = ue.enrolid
+             JOIN {role_assignments} ra ON ra.userid = u.id
+             JOIN {context} c ON c.id = ra.contextid
+             JOIN {role} r ON r.id = ra.roleid
+            WHERE e.courseid = :courseid AND r.shortname = 'student' 
+                  AND c.contextlevel = 50 GROUP BY u.username";
+   $users = $DB->get_records_sql($sql, ['courseid' => $COURSE->id]);
+   $index = 1;
+   $users = array_map(function ($user) use (&$cmid,$DB, &$index) {
+      $sql = "SELECT g.quizid, 
+               SUM(g.grade) AS grade, q.easy , q.medium , q.hard, 
+               q.quiz_title AS quiz_title,q.cmid, q.total_marks
+            FROM {qg_grades} g
+            LEFT JOIN {qg_quiz} q ON q.id = g.quizid
+            LEFT JOIN {qg_quiz_attempts} qa ON qa.quiz = g.quizid AND qa.status = 1
+            WHERE g.userid = :userid AND g.cmid = :cmid
+            GROUP BY g.userid, g.quizid, q.quiz_title";
+   $data = $DB->get_records_sql($sql, ['userid' => $user->id, 'cmid' => $cmid]);
+      $user->quizdata = array_values($data);
+      $user->index = $index;
+      $index++;
+      return $user;
+   }, $users);
+   
+   // echo "<pre>";
+   // print_r(array_values($users));
+   // die;
+
+   echo $OUTPUT->render_from_template('mod_questiongenerator/grade_page_teacher', ['userdata' => array_values($users)]);
+}
+
+echo $OUTPUT->footer();
