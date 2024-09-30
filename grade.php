@@ -26,12 +26,57 @@
  require_login();
  
  $cmid = optional_param('id', 0, PARAM_INT);
- global $DB, $OUTPUT, $PAGE;
+ global $DB, $OUTPUT, $PAGE,$USER , $COURSE;
 
  $url = new moodle_url('/mod/questiongenerator/grade.php');
  $PAGE->set_url($url);
  $context = context_module::instance($cmid);
+
+// Correct query to fetch specific fields
+// $quizes = $DB->get_records('qg_quiz', ['cmid' => $cm->id, 'userid' => $USER->id], '', 'id, quiz_title, state');
+
+
+// $quizes = $DB->get_records('qg_quiz', null, '', 'id, name');
+
+$templatecontext = [];
+
+// Check if categories are available
+if (!empty($categories)) {
+    // Get the first category from the list
+    $first_category = reset($categories); // Get the first category object
+    
+    // Fetch related questions for the first category
+    $questions = $DB->get_records('qg_questions', ['category_id' => $first_category->id], '', 
+        'id, question, options, answer, question_level');
+    
+    // Prepare questions data for Mustache
+    $templatecontext['questions'] = array_map(function($question) {
+        return [
+            'id' => $question->id,
+            'question' => $question->question,
+            'options' => unserialize($question->options), // Assuming options are comma-separated
+            'answer' => $question->answer,
+            'difficulty' => $question->question_level
+        ];
+    }, array_values($questions));
+
+    // Include categories and first category ID in the template context
+    $templatecontext['categories'] = array_values($categories);
+    $templatecontext['first_category_id'] = $first_category->id;
+    $templatecontext['has_categories'] = !empty($categories); // Set true if categories exist, false otherwise
+    $templatecontext['quizes'] = array_values($quizes);
+
+}
  $cm = get_coursemodule_from_id('questiongenerator', $cmid, 0, false, MUST_EXIST);
+ $capability = has_capability('mod/questiongenerator:attemptquiz', $context);
+if($capability){
+
+}
+else{
+   $quizes = $DB->get_records('qg_quiz', ['cmid' => $cm->id, 'userid' => $USER->id], '', 'id, quiz_title, state');
+   var_dump($quizes);
+   die;
+}
  $PAGE->set_cm($cm);
  $PAGE->set_context($context);
  $PAGE->set_heading(get_string('qggrade', 'questiongenerator'));

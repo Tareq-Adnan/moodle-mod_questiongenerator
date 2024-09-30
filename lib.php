@@ -136,7 +136,7 @@ function mod_qg_generate($prompt)
         "messages" => [
             [
                 "role" => "user",
-                "content" => "Only json response, no other texts.
+                "content" => "  No unncessary words.Only json response, no other texts.
                 ONLY generate 5 multiple-choice QUESTIONS from the following text in a JSON format. Each question object should have exactly 4 options and a 'correct_answer' field and don't add any extra texts. Strictly follow this format: " . $json_pattern . " Text: \n\n" . $prompt
             ]
         ],
