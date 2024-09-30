@@ -219,7 +219,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 // Event listener for the "Select All" checkbox
                 selectAll.addEventListener('change', function() {
                     // Select all dynamically generated checkboxes in the table
-                    const checkboxes = document.querySelectorAll('#questionTable input[type="checkbox"]');
+                    const checkboxes = document.querySelectorAll('#questionTable input[type="checkbox"]:not(:disabled)');
                     
                     // Check or uncheck all checkboxes based on the "Select All" checkbox state
                     checkboxes.forEach(checkbox => {
@@ -242,7 +242,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             
                 function toggleButton() {
                     // Select all dynamically generated checkboxes in the table
-                    const checkboxes = document.querySelectorAll('#questionTable input[type="checkbox"]');
+                    const checkboxes = document.querySelectorAll('#questionTable input[type="checkbox"]:not(:disabled)');
                     let isChecked = false;
             
                     checkboxes.forEach(checkbox => {
@@ -255,6 +255,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                     setQuizBtn.style.visibility = isChecked ? 'visible' : 'hidden';
                 }
             }
+            attachCheckboxListeners();
             
             // Call the attachCheckboxListeners function after generating the table dynamically
             

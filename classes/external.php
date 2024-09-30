@@ -207,6 +207,7 @@ class mod_questiongenerator_external extends external_api
             'categoryid' => $categoryid,
             'questionData' => $questionData
         ));
+
         // Insert each question into the database.
         foreach ($params['questionData'] as $question) {
             $record = new stdClass();
