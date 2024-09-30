@@ -207,6 +207,7 @@ class mod_questiongenerator_external extends external_api
             'categoryid' => $categoryid,
             'questionData' => $questionData
         ));
+
         // Insert each question into the database.
         foreach ($params['questionData'] as $question) {
             $record = new stdClass();
@@ -415,6 +416,7 @@ class mod_questiongenerator_external extends external_api
         $quizrecord->easy = $quiz_data_array['easy_marks'];
         $quizrecord->medium = $quiz_data_array['medium_marks'];
         $quizrecord->hard = $quiz_data_array['hard_marks'];
+        $quizrecord->state = 0;
         $quizrecord->timecreated = time();
         $quizrecord->timemodified = time();
     

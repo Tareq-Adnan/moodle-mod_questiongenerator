@@ -155,7 +155,21 @@ export const promptHandling = async (cmid) => {
         content.append(savingAnimation);
     
         if (questionData) {
+
+            
+            // Check if correct_answer is an array
+
+            
+            // If you need to convert it back to a JSON string
             var questionDataJson = JSON.parse(questionData);
+                // Loop through each question object
+            questionDataJson.forEach(function(question) {
+                // Check if correct_answer is an array for each question
+                if (Array.isArray(question.correct_answer)) {
+                    // Convert the array to a single value (e.g., the first element)
+                    question.correct_answer = question.correct_answer[0];
+                }
+            });
             getContent([{
                 methodname: 'mod_questiongenerator_save_generated_questions',
                 args: {
@@ -209,6 +223,7 @@ export const promptHandling = async (cmid) => {
                        <button id="createNewCategoryBtn" type="button" class="btn btn-outline-primary mt-2">Create New Category</button>`;
 
         content.html(selectHTML); // Render the dropdown into the content variable
+        console.log($('#next-step'));
         $('#next-step').text('Save Questions');
         $('#next-step').attr('id', 'save-question');
         $('#save-category').text('Save Questions');
@@ -231,7 +246,8 @@ export const promptHandling = async (cmid) => {
         $('#save-question').text('Create Category');
         $('#save-question').attr('id', 'save-category');
 
-
+        $('#next-step').text('Create Category');
+        $('#next-step').attr('id', 'save-category');
         // Add event listener for "Back to Select" button
         $('#backToSelectBtn').on('click', function () {
             // Call the API again or restore previous categories if needed
