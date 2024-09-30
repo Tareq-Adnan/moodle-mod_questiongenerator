@@ -268,6 +268,48 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             // Call the attachCheckboxListeners function after generating the table dynamically
             
             
+            $(document).ready(function() {
+                $('.state-deactivated, .state-activated').on('click', function() {
+                    const quizId = $(this).data('quiz-id');
+                    const isDeactivated = $(this).hasClass('state-deactivated');
+                    console.log($('.state-activated').length);
+                    // Check if any quiz is currently activated
+                    if ($('.state-activated').length > 0 && isDeactivated) {
+                        // Show an alert if there are activated quizzes
+                        alert('Please deactivate all quizzes first before activating a new one.');
+                        return; // Stop further execution
+                    }
+            
+                    var request = {
+                        methodname: 'mod_questiongenerator_update_quiz_state',
+                        args: {
+                            quizid: quizId,
+                        },
+                    };
+            
+                    // Call the Moodle AJAX API
+                    Ajax.call([request])[0].done(function(response) {
+                        console.log('Response:', response);
+            
+                        if (response) {
+                            // If the clicked button was deactivated, activate it
+                            if (isDeactivated) {
+                                $(this).removeClass('state-deactivated').addClass('state-activated');
+                                $(this).css('color', 'red').text('Deactivate');
+                            } else {
+                                // If it was already activated, deactivate it
+                                $(this).removeClass('state-activated').addClass('state-deactivated');
+                                $(this).css('color', '').text('Activate');
+                            }
+                        } else {
+                            console.error('Failed to update quiz state.');
+                        }
+                    }.bind(this)).fail(function(error) {
+                        console.log('Error updating quiz state:', error);
+                    });
+                });
+            });
+            
             
         
             

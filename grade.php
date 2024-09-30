@@ -56,8 +56,7 @@ if ($isstudent) {
    foreach (array_values($data) as $index => &$option) {
       $option->index = $index+1;
    }
-   // var_dump(array_values($data));
-   // die;
+
    echo $OUTPUT->render_from_template('mod_questiongenerator/grade_page', ['quizdata' => array_values($data)]);
 } else {
 
@@ -87,10 +86,6 @@ if ($isstudent) {
       $index++;
       return $user;
    }, $users);
-   
-   // echo "<pre>";
-   // print_r(array_values($users));
-   // die;
 
    echo $OUTPUT->render_from_template('mod_questiongenerator/grade_page_teacher', ['userdata' => array_values($users)]);
 }

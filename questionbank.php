@@ -39,9 +39,21 @@
 //  ];
 $context = context_module::instance($cmid);
 $cm = get_coursemodule_from_id('questiongenerator', $cmid, 0, false, MUST_EXIST);
-$categories = $DB->get_records('qg_categories', ['cmid' => $cm->id ,'userid'=> $USER->id], '', 'id, name');
+$is_admin = is_siteadmin($USER->id);
+if($is_admin){
+    $categories = $DB->get_records('qg_categories', ['cmid' => $cm->id ], '', 'id, name');
+    $quizes = $DB->get_records('qg_quiz', ['cmid' => $cm->id], '', 'id, quiz_title, state, total_marks');
+
+}
+else{
+    $categories = $DB->get_records('qg_categories', ['cmid' => $cm->id ,'userid'=> $USER->id], '', 'id, name');
+
+    $quizes = $DB->get_records('qg_quiz', ['cmid' => $cm->id, 'userid' => $USER->id], '', 'id, quiz_title, state',"total_marks");
+
+}
+// $categories = $DB->get_records('qg_categories', ['cmid' => $cm->id ,'userid'=> $USER->id], '', 'id, name');
 // Correct query to fetch specific fields
-$quizes = $DB->get_records('qg_quiz', ['cmid' => $cm->id, 'userid' => $USER->id], '', 'id, quiz_title, state');
+
 
 
 // $quizes = $DB->get_records('qg_quiz', null, '', 'id, name');
