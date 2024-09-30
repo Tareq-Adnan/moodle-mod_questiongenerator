@@ -28,7 +28,6 @@
  $cmid = optional_param('id', 0, PARAM_INT);
  global $DB, $OUTPUT, $PAGE;
 
- 
  $url = new moodle_url('/mod/questiongenerator/grade.php');
  $PAGE->set_url($url);
  $context = context_module::instance($cmid);
