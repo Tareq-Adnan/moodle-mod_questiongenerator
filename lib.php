@@ -317,6 +317,8 @@ function questiongenerator_extend_settings_navigation(settings_navigation $setti
     } else {
         $questiongeneratornode->add(get_string('questionbank', 'questiongenerator'),
         new moodle_url('/mod/questiongenerator/questionbank.php', ['id' => $settings->get_page()->cm->id]));
+        $questiongeneratornode->add(get_string('qggrade', 'questiongenerator'),
+        new moodle_url('/mod/questiongenerator/grade.php', ['id' => $settings->get_page()->cm->id]));
     }
 }
 

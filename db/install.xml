@@ -62,6 +62,7 @@
         <FIELD NAME="medium" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Question Level"/>
         <FIELD NAME="hard" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Question Level"/>
         <FIELD NAME="state" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="total_marks" TYPE="int" LENGTH="11" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp of when the record added"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp of when the record was last modified."/>
       </FIELDS>
