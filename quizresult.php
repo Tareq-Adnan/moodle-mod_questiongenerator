@@ -28,7 +28,7 @@ require_login();
 $cmid = optional_param('id', 0, PARAM_INT);
 $user = required_param('user',PARAM_INT);
 $quiz = required_param('quiz', PARAM_INT);
-global $DB, $OUTPUT, $PAGE;
+global $DB, $OUTPUT, $PAGE,$USER;
 
 
 $url = new moodle_url('/mod/questiongenerator/quizresult.php');
@@ -43,15 +43,21 @@ $PAGE->requires->js_call_amd('mod_questiongenerator/quiz_result', 'quizResult', 
 $PAGE->requires->css('/mod/questiongenerator/css/style.css');
 
 $cap = has_capability('mod/questiongenerator:attemptquiz', $context);
-
+$isAdmin = is_siteadmin($USER->id);
 $sql = "SELECT  grade.questionid,grade.grade, grade.answer as selected, question.question,question.options,question.answer, question.question_level as level, quiz.quiz_title
           FROM {qg_grades} grade
       JOIN {qg_questions} question ON grade.questionid = question.id
       JOIN {qg_quiz} quiz ON grade.quizid = quiz.id
          WHERE grade.userid = :userid AND grade.quizid = :quizid
           ";
-$questions = $DB->get_records_sql($sql, ['userid' => !$cap ? $user: $USER->id,'quizid' => $quiz]);
+if($isAdmin){
+    $questions = $DB->get_records_sql($sql, ['userid' =>  $user,'quizid' => $quiz]);
 
+}
+else{
+    $questions = $DB->get_records_sql($sql, ['userid' => !$cap ? $user: $USER->id,'quizid' => $quiz]);
+
+}
 $questions = array_map(function ($question) use (&$countEasy, &$countMedium, &$countHard) {
     $question->options = unserialize($question->options);
     

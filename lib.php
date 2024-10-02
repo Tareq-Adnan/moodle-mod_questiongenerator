@@ -104,7 +104,7 @@ function questiongenerator_delete_instance($id)
 
 function mod_qg_generate($prompt)
 {
-
+    var_dump($prompt);
     $apiKey = get_config('mod_questiongenerator', 'apiKey');
     $url = get_config('mod_questiongenerator', 'endpoint');
 
@@ -167,7 +167,8 @@ function mod_qg_generate($prompt)
     // Extract content from response
     $content = $response_data['choices'][0]['message']['content'] ?? '';
     $contentArray = json_decode($content, true); // Decodes JSON string into an associative array
-
+    var_dump($content);
+    die;
     // Check if content is valid JSON
     $isCorrectFormat = false;
     if (

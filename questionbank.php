@@ -48,7 +48,7 @@ if($is_admin){
 else{
     $categories = $DB->get_records('qg_categories', ['cmid' => $cm->id ,'userid'=> $USER->id], '', 'id, name');
 
-    $quizes = $DB->get_records('qg_quiz', ['cmid' => $cm->id, 'userid' => $USER->id], '', 'id, quiz_title, state',"total_marks");
+    $quizes = $DB->get_records('qg_quiz', ['cmid' => $cm->id, 'userid' => $USER->id], '', 'id, quiz_title, state,total_marks');
 
 }
 // $categories = $DB->get_records('qg_categories', ['cmid' => $cm->id ,'userid'=> $USER->id], '', 'id, name');
