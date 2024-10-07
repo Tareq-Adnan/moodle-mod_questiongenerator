@@ -30,8 +30,10 @@ if ($hassiteconfig) {
 
     // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
     if ($ADMIN->fulltree) {
-        $settings->add(new admin_setting_configtext('mod_questiongenerator/apiKey','API KEY',"Api key", "",PARAM_TEXT));
-        $settings->add(new admin_setting_configtext('mod_questiongenerator/endpoint','API ENDPOINT',"Api Endpoint","",PARAM_TEXT));
-       
+        $settings->add(new admin_setting_configtext('mod_questiongenerator/apiKey',
+        'API KEY', "Api key", "", PARAM_TEXT));
+        $settings->add(new admin_setting_configtext('mod_questiongenerator/endpoint',
+        'API ENDPOINT', "Api Endpoint", "", PARAM_TEXT));
+
     }
 }

@@ -1,0 +1,83 @@
+{{!
+This file is part of Moodle - http://moodle.org/
+
+Moodle is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Moodle is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Moodle. If not, see
+<http: //www.gnu.org/licenses />.
+}}
+{{!
+@template mod_questiongenerator/quiznotfound
+
+TODO describe template quiznotfound
+
+Example context (json):
+{
+}
+}}
+<style>
+    .modal-header {
+        background-color: #ff6b6b;
+        color: white;
+        text-align: center;
+        font-size: 1.5rem;
+    }
+
+    .modal-body {
+        text-align: center;
+    }
+
+    .btn-warning {
+        background-color: #ffa502;
+        border-color: #ffa502;
+        color: white;
+        font-weight: bold;
+        padding: 10px 20px;
+    }
+
+    .btn-warning:hover {
+        background-color: #e58e26;
+        border-color: #e58e26;
+    }
+
+    .modal-body p {
+        font-size: 1.2rem;
+        color: #333;
+    }
+
+    .modal-body .highlight {
+        color: red;
+        font-weight: bold;
+    }
+</style>
+<div class="modal fade" id="quizWarningModal" tabindex="-1" aria-labelledby="quizWarningLabel" aria-hidden="true">
+
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="quizWarningLabel">ATTENTION!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>The quiz you are trying to access is <span class="highlight">not available</span> or <span
+                        class="highlight">was not found</span>.</p>
+                <p>Please contact your instructor or try again later.</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -23,5 +23,29 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// More information about the backup process: {@link https://docs.moodle.org/dev/Backup_API}.
-// More information about the restore process: {@link https://docs.moodle.org/dev/Restore_API}.
+/**
+ * backup_questiongenerator_settingslib
+ */
+class backup_questiongenerator_settingslib extends backup_activity_task {
+
+    // Define particular settings for the backup process.
+    /**
+     * Method define_my_settings
+     *
+     * @return void
+     */
+    protected function define_my_settings() {
+        // Example setting: no specific settings for this activity.
+    }
+
+    // Define additional steps for the backup process.
+    /**
+     * Method define_my_steps
+     *
+     * @return void
+     */
+    protected function define_my_steps() {
+        $this->add_step(new backup_questiongenerator_activity_structure_step('questiongenerator_structure',
+                        'questiongenerator.xml'));
+    }
+}

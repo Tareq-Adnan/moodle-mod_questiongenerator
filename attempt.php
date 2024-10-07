@@ -39,74 +39,68 @@ $PAGE->set_heading(get_string('qggrade', 'questiongenerator'));
 $PAGE->set_title(get_string('qggrade', 'questiongenerator'));
 
 
-$sql = "SELECT aiquestion.question, aiquestion.answer, aiquestion.id as questionid, aiquestion.question_level as level, aiquestion.options
-           FROM {qg_quiz} quiz
-      LEFT JOIN {qg_quiz_questions} question ON quiz.id = question.quizid 
-      LEFT JOIN {qg_questions} aiquestion ON question.questionid = aiquestion.id
-          WHERE quiz.state = 1 AND quiz.cmid = :cmid";
+$sql = "SELECT aiquestion.question, aiquestion.answer, aiquestion.id as questionid,
+               aiquestion.question_level as level, aiquestion.options
+          FROM {qg_quiz} quiz
+     LEFT JOIN {qg_quiz_questions} question ON quiz.id = question.quizid
+     LEFT JOIN {qg_questions} aiquestion ON question.questionid = aiquestion.id
+         WHERE quiz.state = 1 AND quiz.cmid = :cmid";
 $questions = $DB->get_records_sql($sql, ['cmid' => $cmid]);
 
 $quiz = $DB->get_record('qg_quiz', ['cmid' => $cmid, 'state' => 1], 'id, easy, medium, hard');
 
-// $totalMarkeasy = $quiz->easy;
-// $totalmarkmedium = $quiz->medium;
-// $totalMarkhard = $quiz->hard;
+// Initialize counts for each difficulty level.
+$counteasy = 0;
+$countmedium = 0;
+$counthard = 0;
 
-// Initialize counts for each difficulty level
-$countEasy = 0;
-$countMedium = 0;
-$countHard = 0;
-
-// Process questions and add the index for options
-$questions = array_map(function ($question) use (&$countEasy, &$countMedium, &$countHard) {
+// Process questions and add the index for options.
+$questions = array_map(function ($question) use (&$counteasy, &$countmedium, &$counthard) {
     $question->options = unserialize($question->options);
-    
-    // Count the questions based on their level
+
+    // Count the questions based on their level.
     switch ($question->level) {
         case 'easy':
             $question->color = 'success';
-            $countEasy++;
+            $counteasy++;
             break;
         case 'medium':
             $question->color = 'warning';
-            $countMedium++;
+            $countmedium++;
             break;
         case 'hard':
             $question->color = 'danger';
-            $countHard++;
+            $counthard++;
             break;
     }
-    
+
     $question->level = ucfirst($question->level);
-   
-    // Add an index to each option
+
+    // Add an index to each option.
     foreach ($question->options as $index => $option) {
         $question->indexed_options[] = [
             'index' => $index + 1,
-            'value' => $option
+            'value' => $option,
         ];
-        if($option === $question->answer) {
-            $question->answer = base64_encode($index+1);
+        if ($option === $question->answer) {
+            $question->answer = base64_encode($index + 1);
         }
     }
 
     return $question;
 }, $questions);
 
-// // Calculate per-question mark for each difficulty level
-// $easyPerQuestionMark = $countEasy > 0 ? $totalMarkeasy / $countEasy : 0;
-// $mediumPerQuestionMark = $countMedium > 0 ? $totalmarkmedium / $countMedium : 0;
-// $hardPerQuestionMark = $countHard > 0 ? $totalMarkhard / $countHard : 0;
 $marks = [
     'easy' => $quiz->easy,
     'medium' => $quiz->medium,
-    'hard' => $quiz->hard
+    'hard' => $quiz->hard,
 ];
-$PAGE->requires->js_call_amd('mod_questiongenerator/quiz_handle', 'quizHandling', ['cmid' => $cmid,'quizid' => $quiz->id,'marks' => $marks]);
+$PAGE->requires->js_call_amd(
+    'mod_questiongenerator/quiz_handle',
+    'quizHandling',
+    ['cmid' => $cmid, 'quizid' => $quiz->id, 'marks' => $marks]
+);
 
-//  echo "<pre>";
-//  var_dump($marks);
-//  die;
 echo $OUTPUT->header();
 
 echo $OUTPUT->render_from_template('mod_questiongenerator/attempt', ['questions' => array_values($questions)]);

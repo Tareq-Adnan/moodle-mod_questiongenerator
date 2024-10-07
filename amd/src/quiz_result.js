@@ -20,3 +20,7 @@
  * @copyright  2024 YOUR NAME <your@email.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+export const quizResult = () => {
+
+};
