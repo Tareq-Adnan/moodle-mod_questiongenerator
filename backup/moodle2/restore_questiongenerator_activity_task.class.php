@@ -39,16 +39,17 @@ class restore_questiongenerator_activity_task extends restore_activity_task {
      * Defines particular settings that this activity can have.
      */
     protected function define_my_settings() {
-        return;
+
     }
 
     /**
-     * Defines particular steps that this activity can have.
+     * Method define_my_steps
      *
-     * @return base_step.
+     * @return void
      */
     protected function define_my_steps() {
-        $this->add_step(new restore_questiongenerator_activity_structure_step('questiongenerator_structure', 'questiongenerator.xml'));
+        $this->add_step(new restore_questiongenerator_activity_structure_step('questiongenerator_structure',
+                        'questiongenerator.xml'));
     }
 
     /**
@@ -57,9 +58,8 @@ class restore_questiongenerator_activity_task extends restore_activity_task {
      * @return array.
      */
     public static function define_decode_contents() {
-        $contents = array();
-
-        // Define the contents.
+        $contents = [];
+        $contents[] = new restore_decode_content('questiongenerator', ['intro'], 'questiongenerator');
 
         return $contents;
     }
@@ -70,7 +70,7 @@ class restore_questiongenerator_activity_task extends restore_activity_task {
      * @return array.
      */
     public static function define_decode_rules() {
-        $rules = array();
+        $rules = [];
 
         // Define the rules.
 
@@ -85,7 +85,7 @@ class restore_questiongenerator_activity_task extends restore_activity_task {
      * @return array.
      */
     public static function define_restore_log_rules() {
-        $rules = array();
+        $rules = [];
 
         // Define the rules.
 

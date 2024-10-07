@@ -23,9 +23,9 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-
-require_once($CFG->dirroot.'/course/moodleform_mod.php');
-
+use core_grades\component_gradeitems;
+require_once($CFG->dirroot . '/course/moodleform_mod.php');
+require_once($CFG->dirroot . '/mod/questiongenerator/lib.php');
 /**
  * Module instance settings form.
  *
@@ -35,11 +35,12 @@ require_once($CFG->dirroot.'/course/moodleform_mod.php');
  */
 class mod_questiongenerator_mod_form extends moodleform_mod {
 
+
     /**
      * Defines forms elements
      */
     public function definition() {
-        global $CFG;
+        global $CFG, $COURSE;
 
         $mform = $this->_form;
 
@@ -47,17 +48,13 @@ class mod_questiongenerator_mod_form extends moodleform_mod {
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         // Adding the standard "name" field.
-        $mform->addElement('text', 'name', get_string('questiongeneratorname', 'mod_questiongenerator'), array('size' => '64'));
+        $mform->addElement('text', 'name', get_string('questiongeneratorname', 'mod_questiongenerator'), ['size' => '64']);
 
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
         } else {
             $mform->setType('name', PARAM_CLEANHTML);
         }
-
-        // $mform->addRule('name', null, 'required', null, 'client');
-        // $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-        // $mform->addHelpButton('name', 'questiongeneratorname', 'mod_questiongenerator');
 
         // Adding the standard "intro" and "introformat" fields.
         if ($CFG->branch >= 29) {
@@ -66,11 +63,48 @@ class mod_questiongenerator_mod_form extends moodleform_mod {
             $this->add_intro_editor();
         }
 
-        // Adding the rest of mod_questiongenerator settings, spreading all them into this fieldset
-        // ... or adding more fieldsets ('header' elements) if needed for better logic.
-        // $mform->addElement('static', 'label1', 'questiongeneratorsettings', get_string('questiongeneratorsettings', 'mod_questiongenerator'));
-        // $mform->addElement('header', 'questiongeneratorfieldset', get_string('questiongeneratorfieldset', 'mod_questiongenerator'));
+        $itemnumber = 0;
+        $component = "mod_questiongenerator";
+        $gradefieldname = component_gradeitems::get_field_name_for_itemnumber($component, $itemnumber, 'grade');
+        $isupdate = !empty($this->_cm);
+        $gradeoptions = [
+        'isupdate' => $isupdate,
+        'currentgrade' => false,
+        'hasgrades' => false,
+        'canrescale' => $this->_features->canrescale,
+        'useratings' => $this->_features->rating,
+        ];
+        $mform->addElement('header', 'modstandardgrade', get_string('gradenoun'));
 
+        // If supports grades and grades arent being handled via ratings.
+        if ($isupdate) {
+            $gradeitem = grade_item::fetch([
+            'itemtype' => 'mod',
+            'itemmodule' => $this->_cm->modname,
+            'iteminstance' => $this->_cm->instance,
+            'itemnumber' => 0,
+            'courseid' => $COURSE->id,
+            ]);
+            if ($gradeitem) {
+                $gradeoptions['currentgrade'] = $gradeitem->grademax;
+                $gradeoptions['currentgradetype'] = $gradeitem->gradetype;
+                $gradeoptions['currentscaleid'] = $gradeitem->scaleid;
+                $gradeoptions['hasgrades'] = $gradeitem->has_grades();
+            }
+        }
+        $mform->addElement('modgrade', $gradefieldname, get_string('gradenoun'), $gradeoptions);
+        $mform->addHelpButton($gradefieldname, 'modgrade', 'grades');
+        $mform->setDefault($gradefieldname, $CFG->gradepointdefault);
+
+        // Grading method.
+        $mform->addElement(
+        'select',
+        'grademethod',
+        get_string('grademethod', 'mod_questiongenerator'),
+        questiongenerator_get_grading_options()
+        );
+
+        // $this->standard_grading_section_elements();
         // Add standard elements.
         $this->standard_coursemodule_elements();
 

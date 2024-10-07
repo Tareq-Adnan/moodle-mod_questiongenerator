@@ -37,16 +37,39 @@ class restore_questiongenerator_activity_structure_step extends restore_activity
      * @return restore_path_element[].
      */
     protected function define_structure() {
-        $paths = array();
+        $paths = [];
         $userinfo = $this->get_setting_value('userinfo');
+
+        $questiongenerator = new restore_path_element('questiongenerator', '/activity/questiongenerator');
+
+        $paths[] = $questiongenerator;
 
         return $this->prepare_activity_structure($paths);
     }
 
     /**
-     * Defines post-execution actions.
+     * Method process_questiongenerator
+     *
+     * @param $data $data [explicite description]
+     *
+     * @return void
+     */
+    protected function process_questiongenerator($data) {
+        global $DB;
+
+        $data = (object)$data;
+        $data->course = $this->get_courseid();
+        $newitemid = $DB->insert_record('questiongenerator', $data);
+        $this->apply_activity_instance($newitemid);
+
+    }
+
+    /**
+     * Method after_execute
+     *
+     * @return void
      */
     protected function after_execute() {
-        return;
+         $this->add_related_files('questiongenerator', 'intro', null);
     }
 }

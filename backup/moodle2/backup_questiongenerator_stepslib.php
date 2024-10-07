@@ -32,26 +32,28 @@
 class backup_questiongenerator_activity_structure_step extends backup_activity_structure_step {
 
     /**
-     * Defines the structure of the resulting xml file.
+     * Method define_structure
      *
-     * @return backup_nested_element The structure wrapped by the common 'activity' element.
+     * @return backup_nested_element
      */
     protected function define_structure() {
         $userinfo = $this->get_setting_value('userinfo');
 
-        // Replace with the attributes and final elements that the element will handle.
-        $attributes = null;
-        $finalelements = null;
-        $root = new backup_nested_element('mod_questiongenerator', $attributes, $finalelements);
+        // Define the main element describing the questiongenerator instance.
+        $questiongenerator = new backup_nested_element('questiongenerator', ['id'], [
+            'course', 'name', 'intro', 'introformat', 'legacyfiles', 'legacyfileslast',
+            'display', 'displayoptions', 'revision', 'timemodified',
+        ]);
 
-        // Build the tree with these elements with $root as the root of the backup tree.
+        // Build the tree.
 
-        // Define the source tables for the elements.
+        // Define sources.
+        $questiongenerator->set_source_table('questiongenerator', ['id' => backup::VAR_ACTIVITYID]);
+            // Define id annotations.
 
-        // Define id annotations.
-
-        // Define file annotations.
-
-        return $this->prepare_activity_structure($root);
+            // Define file annotations.
+        $questiongenerator->annotate_files('mod_questiongenerator', 'intro', null);
+            // Return the root element (questiongenerator), wrapped into standard activity structure.
+            return $this->prepare_activity_structure($questiongenerator);
     }
 }

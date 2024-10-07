@@ -37,4 +37,46 @@ $string['gquestions'] = "Generated Questions";
 $string['aiquestionbank'] = "AI Question Bank";
 $string['questionbank'] = 'Question Bank';
 $string['questiongenerator:attemptquiz'] = 'Attempt Quiz';
-$string['qggrade'] = "Grades";
+$string['qggrade'] = "Quiz Review";
+$string['questiongenerator:grade'] = "grade";
+$string['gradeaverage'] = 'Average grade';
+$string['gradeboundary'] = 'Grade boundary';
+$string['gradeessays'] = 'Grade essays';
+$string['gradehighest'] = 'Highest grade';
+$string['attemptfirst'] = 'First attempt';
+$string['attemptlast'] = 'First last';
+$string['grademethod'] = 'Grading method';
+
+$string['privacy:metadata:questiongenerator'] = 'Stores information about the question generator activity instances.';
+$string['privacy:metadata:questiongenerator:course'] = 'The course in which the activity is located.';
+$string['privacy:metadata:questiongenerator:name'] = 'The name of the question generator activity.';
+$string['privacy:metadata:questiongenerator:intro'] = 'The introductory text for the activity.';
+$string['privacy:metadata:questiongenerator:timemodified'] = 'The time when the activity was last modified.';
+// Privacy metadata for the qg_categories table.
+$string['privacy:metadata:qg_categories'] = 'The categories created by users for questions.';
+$string['privacy:metadata:qg_categories:userid'] = 'The ID of the user who created the category.';
+$string['privacy:metadata:qg_categories:name'] = 'The name of the question category.';
+$string['privacy:metadata:qg_categories:timecreated'] = 'The time when the category was created.';
+$string['privacy:metadata:qg_categories:timemodified'] = 'The time when the category was last modified.';
+
+// Privacy metadata for the qg_questions table.
+$string['privacy:metadata:qg_questions'] = 'The questions added by users, along with possible answers.';
+$string['privacy:metadata:qg_questions:userid'] = 'The ID of the user who created the question.';
+$string['privacy:metadata:qg_questions:question'] = 'The text of the question.';
+$string['privacy:metadata:qg_questions:answer'] = 'The correct answer to the question.';
+$string['privacy:metadata:qg_questions:timecreated'] = 'The time when the question was created.';
+$string['privacy:metadata:qg_questions:timemodified'] = 'The time when the question was last modified.';
+
+// Privacy metadata for the qg_quiz table.
+$string['privacy:metadata:qg_quiz'] = 'The quizzes created by users.';
+$string['privacy:metadata:qg_quiz:userid'] = 'The ID of the user who created the quiz.';
+$string['privacy:metadata:qg_quiz:quiz_title'] = 'The title of the quiz.';
+$string['privacy:metadata:qg_quiz:timecreated'] = 'The time when the quiz was created.';
+$string['privacy:metadata:qg_quiz:timemodified'] = 'The time when the quiz was last modified.';
+
+// Privacy metadata for the qg_quiz_attempts table.
+$string['privacy:metadata:qg_quiz_attempts'] = 'The attempts made by users for quizzes.';
+$string['privacy:metadata:qg_quiz_attempts:userid'] = 'The ID of the user who attempted the quiz.';
+$string['privacy:metadata:qg_quiz_attempts:status'] = 'The status of the quiz attempt.';
+$string['privacy:metadata:qg_quiz_attempts:timecreated'] = 'The time when the quiz attempt was made.';
+$string['privacy:metadata:qg_quiz_attempts:timemodified'] = 'The time when the quiz attempt was last modified.';

@@ -22,88 +22,74 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
- require('../../config.php');
- require_login();
- 
- $cmid = optional_param('id', 0, PARAM_INT);
- global $DB, $OUTPUT, $PAGE, $USER;
+require('../../config.php');
+require_login();
 
+$cmid = optional_param('id', 0, PARAM_INT);
+global $DB, $OUTPUT, $PAGE, $USER;
 
- 
-//  // Fetch categories from the database
-//  $categories = $DB->get_records('qg_categories', null, '', 'id, name');
- 
-//  // Pass categories to the template
-//  $templatecontext = [
-//      'categories' => array_values($categories),
-//  ];
 $context = context_module::instance($cmid);
 $cm = get_coursemodule_from_id('questiongenerator', $cmid, 0, false, MUST_EXIST);
-$is_admin = is_siteadmin($USER->id);
-if($is_admin){
-    $categories = $DB->get_records('qg_categories', ['cmid' => $cm->id ], '', 'id, name');
+$isadmin = is_siteadmin($USER->id);
+if ($isadmin) {
+    $categories = $DB->get_records('qg_categories', [], '', 'id, name');
     $quizes = $DB->get_records('qg_quiz', ['cmid' => $cm->id], '', 'id, quiz_title, state, total_marks');
 
-}
-else{
-    $categories = $DB->get_records('qg_categories', ['cmid' => $cm->id ,'userid'=> $USER->id], '', 'id, name');
+} else {
+    $categories = $DB->get_records('qg_categories', ['cmid' => $cm->id, 'userid' => $USER->id], '', 'id, name');
 
     $quizes = $DB->get_records('qg_quiz', ['cmid' => $cm->id, 'userid' => $USER->id], '', 'id, quiz_title, state,total_marks');
 
 }
-// $categories = $DB->get_records('qg_categories', ['cmid' => $cm->id ,'userid'=> $USER->id], '', 'id, name');
-// Correct query to fetch specific fields
-
-
-
-// $quizes = $DB->get_records('qg_quiz', null, '', 'id, name');
 
 $templatecontext = [];
 
-// Check if categories are available
+// Check if categories are available.
 if (!empty($categories)) {
-    // Get the first category from the list
-    $first_category = reset($categories); // Get the first category object
-    
-    // Fetch related questions for the first category
-    $questions = $DB->get_records('qg_questions', ['category_id' => $first_category->id], '', 
-        'id, question, options, answer, question_level');
-    
-    // Prepare questions data for Mustache
-    $templatecontext['questions'] = array_map(function($question) {
+    // Get the first category from the list.
+    $firstcategory = reset($categories); // Get the first category object.
+
+    // Fetch related questions for the first category.
+    $questions = $DB->get_records(
+        'qg_questions',
+        ['category_id' => $firstcategory->id],
+        '',
+        'id, question, options, answer, question_level'
+    );
+
+    // Prepare questions data for Mustache.
+    $templatecontext['questions'] = array_map(function ($question) {
         return [
             'id' => $question->id,
             'question' => $question->question,
-            'options' => unserialize($question->options), // Assuming options are comma-separated
+            'options' => unserialize($question->options), // Assuming options are comma-separated.
             'answer' => $question->answer,
-            'difficulty' => $question->question_level
+            'difficulty' => $question->question_level,
         ];
     }, array_values($questions));
 
-    // Include categories and first category ID in the template context
+    // Include categories and first category ID in the template context.
     $templatecontext['categories'] = array_values($categories);
-    $templatecontext['first_category_id'] = $first_category->id;
-    $templatecontext['has_categories'] = !empty($categories); // Set true if categories exist, false otherwise
+    $templatecontext['first_category_id'] = $firstcategory->id;
+    $templatecontext['has_categories'] = !empty($categories); // Set true if categories exist, false otherwise.
     $templatecontext['quizes'] = array_values($quizes);
 
 }
- $url = new moodle_url('/mod/questiongenerator/questionbank.php');
- $PAGE->set_url($url);
+$url = new moodle_url('/mod/questiongenerator/questionbank.php');
+$PAGE->set_url($url);
 
- $PAGE->set_cm($cm);
- $PAGE->set_context($context);
- $PAGE->set_heading(get_string('questionbank', 'questiongenerator'));
- $PAGE->set_title(get_string('questionbank', 'questiongenerator'));
-
-
- // Custom JS and CSS
- $PAGE->requires->js_call_amd('mod_questiongenerator/questiongenerator', 'init', array(
-    'cmid'=>$cmid));
+$PAGE->set_cm($cm);
+$PAGE->set_context($context);
+$PAGE->set_heading(get_string('questionbank', 'questiongenerator'));
+$PAGE->set_title(get_string('questionbank', 'questiongenerator'));
 
 
- $PAGE->requires->css('/mod/questiongenerator/css/style.css');
- 
- echo $OUTPUT->header();
- echo $OUTPUT->render_from_template('mod_questiongenerator/questiongenerator', $templatecontext);
- echo $OUTPUT->footer();
- 
+// Custom JS and CSS.
+$PAGE->requires->js_call_amd('mod_questiongenerator/questiongenerator', 'init', ['cmid' => $cmid]);
+
+
+$PAGE->requires->css('/mod/questiongenerator/css/style.css');
+
+echo $OUTPUT->header();
+echo $OUTPUT->render_from_template('mod_questiongenerator/questiongenerator', $templatecontext);
+echo $OUTPUT->footer();

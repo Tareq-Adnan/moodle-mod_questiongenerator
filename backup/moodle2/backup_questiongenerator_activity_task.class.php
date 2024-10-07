@@ -25,11 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// More information about the backup process: {@link https://docs.moodle.org/dev/Backup_API}.
-// More information about the restore process: {@link https://docs.moodle.org/dev/Restore_API}.
-
-require_once($CFG->dirroot.'//mod/questiongenerator/backup/moodle2/backup_questiongenerator_stepslib.php');
-require_once($CFG->dirroot.'//mod/questiongenerator/backup/moodle2/backup_questiongenerator_settingslib.php');
+require_once($CFG->dirroot.'/mod/questiongenerator/backup/moodle2/backup_questiongenerator_stepslib.php');
+require_once($CFG->dirroot.'/mod/questiongenerator/backup/moodle2/backup_questiongenerator_settingslib.php');
 
 /**
  * Provides all the settings and steps to perform a complete backup of mod_questiongenerator.
@@ -40,14 +37,15 @@ class backup_questiongenerator_activity_task extends backup_activity_task {
      * Defines particular settings for the plugin.
      */
     protected function define_my_settings() {
-        return;
+
     }
 
     /**
      * Defines particular steps for the backup process.
      */
     protected function define_my_steps() {
-        $this->add_step(new backup_questiongenerator_activity_structure_step('questiongenerator_structure', 'questiongenerator.xml'));
+        $this->add_step(new backup_questiongenerator_activity_structure_step('questiongenerator_structure',
+                            'questiongenerator.xml'));
     }
 
     /**
@@ -57,18 +55,6 @@ class backup_questiongenerator_activity_task extends backup_activity_task {
      * @return string
      */
     public static function encode_content_links($content) {
-        global $CFG;
-
-        $base = preg_quote($CFG->wwwroot, '/');
-
-        // Link to the list of choices.
-        $search = "/(".$base."\//mod\/questiongenerator\/index.php\?id\=)([0-9]+)/";
-        $content = preg_replace($search, '$@QUESTIONGENERATORINDEX*$2@$', $content);
-
-        // Link to choice view by moduleid.
-        $search = "/(".$base."\//mod\/questiongenerator\/view.php\?id\=)([0-9]+)/";
-        $content = preg_replace($search, '$@QUESTIONGENERATORVIEWBYID*$2@$', $content);
-
         return $content;
     }
 }

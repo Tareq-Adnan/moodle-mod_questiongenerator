@@ -21,258 +21,287 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import $ from 'jquery';
+import $ from "jquery";
 import { call as getContent } from "core/ajax";
-import promptModal from './prompt_modal';
-export const promptHandling = async (cmid) => {
 
-    var form = $('#prompt-form');
-    var content = $('#mod-qg-body');
-    var spinner = $('#qg-spinner');
-    var save = $('#save-question');
-    var nextStep = $('#next-step');
-    var tryagain = $('#try-again');
-    var modal = $('#bsmodal');
+export const promptHandling = async (cmid) => {
+    var form = $("#prompt-form");
+    var content = $("#mod-qg-body");
+    var spinner = $("#qg-spinner");
+    var save = $("#save-question");
+    var nextStep = $("#next-step");
+    var tryagain = $("#try-again");
+    var modal = $("#bsmodal");
     var questionData = null;
-    var saveCategory = $('#save-category');
-    form.on('submit', function (e) {
+    var saveCategory = $("#save-category");
+    form.on("submit", function (e) {
         e.preventDefault();
         let formdata = new FormData(this);
-        let prompt = formdata.get('prompt');
-        form.trigger('reset');
+        let prompt = formdata.get("prompt");
+        form.trigger("reset");
         spinner.show();
-        $(this).find('button[type="submit"]').prop('disabled', true);
+        $(this).find('button[type="submit"]').prop("disabled", true);
         // promptModal.create({});
 
-
-        getContent([{
-            methodname: 'mod_questiongenerator_submit_prompts',
-            args: { prompt: prompt },
-        }])[0].done(response => {
-            let questions = JSON.parse(response);
-            // console.log(questions);
-            questionData = response;
-            showQuestions(questions);
-            spinner.hide();
-            $(this).find('button[type="submit"]').prop('disabled', false);
-        }).fail(error => {
-            spinner.hide();
-            throw new Error(error.message);
-        });
+        getContent([
+            {
+                methodname: "mod_questiongenerator_submit_prompts",
+                args: { prompt: prompt },
+            },
+        ])[0]
+            .done((response) => {
+                let questions = JSON.parse(response);
+                // console.log(questions);
+                questionData = response;
+                showQuestions(questions);
+                spinner.hide();
+                $(this).find('button[type="submit"]').prop("disabled", false);
+            })
+            .fail((error) => {
+                spinner.hide();
+                throw new Error(error.message);
+            });
     });
 
-    $(document).on('click', '#next-step', function () {
-        $(this).prop('disabled', true); // Disable the button to prevent multiple clicks
+    $(document).on("click", "#next-step", function () {
+        $(this).prop("disabled", true); // Disable the button to prevent multiple clicks
         content.empty(); // Clear the content
         // $(this).attr('id','savecat-question');
         if (questionData) {
             console.log(questionData);
 
-            getContent([{
-                methodname: 'mod_questiongenerator_get_questions_categories',
-                args: {
-                    'cmid': cmid
+            getContent([
+                {
+                    methodname: "mod_questiongenerator_get_questions_categories",
+                    args: {
+                        cmid: cmid,
+                    },
                 },
-            }])[0].done(response => {
-                $(this).prop('disabled', false); // Re-enable the button after response
+            ])[0]
+                .done((response) => {
+                    $(this).prop("disabled", false); // Re-enable the button after response
 
-                // Check if the response has categories
-                if (response && response.length > 0) {
-                    renderCategorySelect(response);
-                } else {
-                    renderCategoryInput(); // If no categories, show input field
-                }
-            }).fail(error => {
-                spinner.hide();
-                console.error('Error:', error.message);
-                $(this).prop('disabled', false); // Re-enable the button in case of error
-            });
+                    // Check if the response has categories
+                    if (response && response.length > 0) {
+                        renderCategorySelect(response);
+                    } else {
+                        renderCategoryInput(); // If no categories, show input field
+                    }
+                })
+                .fail((error) => {
+                    spinner.hide();
+                    console.error("Error:", error.message);
+                    $(this).prop("disabled", false); // Re-enable the button in case of error
+                });
         }
     });
-    $(document).on('click', '#save-category', function () {
-        $(this).prop('disabled', true); // Disable the button to prevent multiple clicks
+    $(document).on("click", "#save-category", function () {
+        $(this).prop("disabled", true); // Disable the button to prevent multiple clicks
         // $(this).attr('id','savecat-question');
-        let categoryValue = $('#category').val();
+        let categoryValue = $("#category").val();
         content.empty(); // Clear the content
 
         console.log(categoryValue);
         if (questionData) {
-            getContent([{
-                methodname: 'mod_questiongenerator_create_question_category',
-                args: {
-                    'cmid': cmid,
-                    'categoryname': categoryValue
+            getContent([
+                {
+                    methodname: "mod_questiongenerator_create_question_category",
+                    args: {
+                        cmid: cmid,
+                        categoryname: categoryValue,
+                    },
                 },
-            }])[0].done(response => {
-                $(this).prop('disabled', false); // Re-enable the button after response
-                console.log(response);
-                console.log(questionData);
+            ])[0]
+                .done((response) => {
+                    $(this).prop("disabled", false); // Re-enable the button after response
+                    console.log(response);
+                    console.log(questionData);
 
-                if (response.status) {
-                    getContent([{
-                        methodname: 'mod_questiongenerator_get_questions_categories',
-                        args: {
-                            'cmid':cmid
+                    if (response.status) {
+                        getContent([
+                            {
+                                methodname: "mod_questiongenerator_get_questions_categories",
+                                args: {
+                                    cmid: cmid,
+                                },
+                            },
+                        ])[0]
+                            .done((response) => {
+                                $(this).prop("disabled", false); // Re-enable the button after response
 
-                        },
-                    }])[0].done(response => {
-                        $(this).prop('disabled', false); // Re-enable the button after response
-
-                        // Check if the response has categories
-                        if (response && response.length > 0) {
-                            renderCategorySelect(response);
-                        } else {
-                            renderCategoryInput(); // If no categories, show input field
-                        }
-                    }).fail(error => {
-                        spinner.hide();
-                        console.error('Error:', error.message);
-                        $(this).prop('disabled', false); // Re-enable the button in case of error
-                    });
-                } else {
-                    renderCategoryInput(); // If no categories, show input field
-                }
-                // Check if the response has categories
-
-            }).fail(error => {
-                spinner.hide();
-                console.error('Error:', error.message);
-                $(this).prop('disabled', false); // Re-enable the button in case of error
-            });
+                                // Check if the response has categories
+                                if (response && response.length > 0) {
+                                    renderCategorySelect(response);
+                                } else {
+                                    renderCategoryInput(); // If no categories, show input field
+                                }
+                            })
+                            .fail((error) => {
+                                spinner.hide();
+                                console.error("Error:", error.message);
+                                $(this).prop("disabled", false); // Re-enable the button in case of error
+                            });
+                    } else {
+                        renderCategoryInput(); // If no categories, show input field
+                    }
+                    // Check if the response has categories
+                })
+                .fail((error) => {
+                    spinner.hide();
+                    console.error("Error:", error.message);
+                    $(this).prop("disabled", false); // Re-enable the button in case of error
+                });
         }
     });
-    $(document).on('click', '#save-question', function () {
+    $(document).on("click", "#save-question", function () {
         let $this = $(this);
-        $this.prop('disabled', true); // Disable the button to prevent multiple clicks
-        
-        let categoryValue = $('#category').val();
+        $this.prop("disabled", true); // Disable the button to prevent multiple clicks
+
+        let categoryValue = $("#category").val();
         console.log(categoryValue);
-    
+
         content.empty(); // Clear the content
-    
+
         // Show saving animation
         let savingAnimation = $('<div class="saving-animation">Saving...</div>');
         content.append(savingAnimation);
-    
-        if (questionData) {
 
-            
+        if (questionData) {
             // Check if correct_answer is an array
 
-            
             // If you need to convert it back to a JSON string
             var questionDataJson = JSON.parse(questionData);
-                // Loop through each question object
-            questionDataJson.forEach(function(question) {
+            // Loop through each question object
+            questionDataJson.forEach(function (question) {
                 // Check if correct_answer is an array for each question
                 if (Array.isArray(question.correct_answer)) {
                     // Convert the array to a single value (e.g., the first element)
                     question.correct_answer = question.correct_answer[0];
                 }
             });
-            getContent([{
-                methodname: 'mod_questiongenerator_save_generated_questions',
-                args: {
-                    'cmid': cmid,
-                    'categoryid': categoryValue,
-                    'questionData': questionDataJson
+            getContent([
+                {
+                    methodname: "mod_questiongenerator_save_generated_questions",
+                    args: {
+                        cmid: cmid,
+                        categoryid: categoryValue,
+                        questionData: questionDataJson,
+                    },
                 },
-            }])[0].done(response => {
-                $this.prop('disabled', false); // Re-enable the button after response
-                console.log(response);
-    
-                // Remove saving animation and show success icon
-                savingAnimation.remove();
-                let successIcon = $('<div class="success-icon">✔️ Saved</div>');
-                content.html(successIcon);
-    
-            }).fail(error => {
-                spinner.hide();
-                console.error('Error:', error.message);
-                
-                // Remove saving animation
-                savingAnimation.remove();
-                $this.prop('disabled', false); // Re-enable the button in case of error
-            });
+            ])[0]
+                .done((response) => {
+                    $this.prop("disabled", false); // Re-enable the button after response
+                    console.log(response);
+
+                    // Remove saving animation and show success icon
+                    savingAnimation.remove();
+                    let successIcon = $('<div class="success-icon">✔️ Saved</div>');
+                    content.html(successIcon);
+                })
+                .fail((error) => {
+                    spinner.hide();
+                    console.error("Error:", error.message);
+
+                    // Remove saving animation
+                    savingAnimation.remove();
+                    $this.prop("disabled", false); // Re-enable the button in case of error
+                });
         }
-    
+
         // Remove modal footer
-        $('.modal-footer').remove();
+        $(".modal-footer").remove();
     });
-    
+
     // $(document).on('click', '.save-btn', function (e) {
     //    e.preventDefault();
     //    let category = $('#category').val();
     //    console.log(val);
     // })
 
-
     // Function to render category select dropdown with Bootstrap styling
+    /**
+     * Description
+     * @param {any} categories
+     * @returns {any}
+     */
     function renderCategorySelect(categories) {
         let selectHTML = `<div class="form-group">
                             <label for="category">Select Category:</label>
                             <select id="category" class="form-control" name="category">`;
 
         // Populate the select options
-        categories.forEach(category => {
+        categories.forEach((category) => {
             selectHTML += `<option value="${category.id}">${category.name}</option>`;
         });
 
         selectHTML += `</select>
                        </div>
-                       <button id="createNewCategoryBtn" type="button" class="btn btn-outline-primary mt-2">Create New Category</button>`;
+                       <button id="createNewCategoryBtn" type="button" class="btn btn-outline-primary
+                       mt-2">Create New Category</button>`;
 
         content.html(selectHTML); // Render the dropdown into the content variable
-        console.log($('#next-step'));
-        $('#next-step').text('Save Questions');
-        $('#next-step').attr('id', 'save-question');
-        $('#save-category').text('Save Questions');
-        $('#save-category').attr('id', 'save-question');
+
+        $("#next-step").text("Save Questions");
+        $("#next-step").attr("id", "save-question");
+        $("#save-category").text("Save Questions");
+        $("#save-category").attr("id", "save-question");
         // Add event listener for "Create New Category" button
-        $('#createNewCategoryBtn').on('click', function () {
+        $("#createNewCategoryBtn").on("click", function () {
             renderCategoryInput(); // Switch to input text field
         });
     }
 
     // Function to render category input text field with Bootstrap styling
+    /**
+     * Description
+     * @returns {any}
+     */
     function renderCategoryInput() {
         const inputHTML = `<div class="form-group">
                              <label for="category">New Category:</label>
                              <input type="text" id="category" class="form-control" name="category" placeholder="Enter new category">
                            </div>
-                           <button id="backToSelectBtn" type="button" class="btn btn-outline-secondary mt-2">Back to Select</button>`;
+                           <button id="backToSelectBtn" type="button" class="btn btn-outline-secondary
+                            mt-2">Back to Select</button>`;
 
         content.html(inputHTML); // Render the input field into the content variable
-        $('#save-question').text('Create Category');
-        $('#save-question').attr('id', 'save-category');
+        $("#save-question").text("Create Category");
+        $("#save-question").attr("id", "save-category");
 
-        $('#next-step').text('Create Category');
-        $('#next-step').attr('id', 'save-category');
+        $("#next-step").text("Create Category");
+        $("#next-step").attr("id", "save-category");
         // Add event listener for "Back to Select" button
-        $('#backToSelectBtn').on('click', function () {
+        $("#backToSelectBtn").on("click", function () {
             // Call the API again or restore previous categories if needed
-            getContent([{
-                methodname: 'mod_questiongenerator_get_questions_categories',
-                args: {
-                    'cmid':cmid
+            getContent([
+                {
+                    methodname: "mod_questiongenerator_get_questions_categories",
+                    args: {
+                        cmid: cmid,
+                    },
                 },
-            }])[0].done(response => {
+            ])[0].done((response) => {
                 renderCategorySelect(response);
             });
         });
     }
 
-    $(document).on('click', '#mod-qg-close', function () {
+    $(document).on("click", "#mod-qg-close", function () {
         hideModal();
     });
 
-    tryagain.on('click', function () {
+    tryagain.on("click", function () {
         hideModal();
     });
 
+    /**
+     * Description
+     * @param {any} questions
+     * @returns {any}
+     */
     function showQuestions(questions) {
-        let html = '';
-        questions.forEach(question => {
+        let html = "";
+        questions.forEach((question) => {
             html += ` <div class="quiz-container"><div class="question">
                         <h6>${question.question}</h6>
                         </div>
@@ -280,7 +309,7 @@ export const promptHandling = async (cmid) => {
                         `;
             question.options.forEach((option, index) => {
                 html += `<label class="option">
-                       
+
                         <span><strong>${index + 1}.</strong>  ${option}</span>
                     </label>`;
             });
@@ -288,33 +317,46 @@ export const promptHandling = async (cmid) => {
             html += `</div><div id="result" class="result">
                     <p>The correct answer is: <span id="correctAnswer">${question.correct_answer}</span></p>
                     </div>`;
-            html += '</div></div>';
+            html += "</div></div>";
         });
 
         content.empty().html(html);
-        modal.modal('show');
+        modal.modal("show");
     }
+    /**
+     * Description
+     * @returns {any}
+     */
     function hideModal() {
-        modal.addClass('hide');
+        modal.addClass("hide");
         setTimeout(() => {
-            modal.modal('hide').removeClass('hide');
+            modal.modal("hide").removeClass("hide");
         }, 250);
     }
 
-    $(document).on('click', '#attemptquiz', startAttempt);
+    $(document).on("click", "#attemptquiz", startAttempt);
+    /**
+     * Description
+     * @param {any} e
+     * @returns {any}
+     */
     function startAttempt(e) {
         e.preventDefault();
-    
-        getContent([{
-            methodname: 'mod_questiongenerator_attempt_quiz',
-            args: { cmid: cmid,status:'start' },
-        }])[0].done(response => {
-          if(response.status) {
-            window.location.href = `attempt.php?id=${cmid}`;
-          }
-        }).fail(error => {
-            throw new Error(error.message);
-        });
+        getContent([
+            {
+                methodname: "mod_questiongenerator_attempt_quiz",
+                args: {
+                    cmid: cmid, status: "start"
+                },
+            },
+        ])[0]
+            .done((response) => {
+                if (response.status) {
+                    window.location.href = `attempt.php?id=${cmid}`;
+                }
+            })
+            .fail((error) => {
+                throw new Error(error.message);
+            });
     }
 };
-
